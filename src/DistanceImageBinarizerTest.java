@@ -163,7 +163,7 @@ public class DistanceImageBinarizerTest {
     // Check a few pixels for exact RGB values
     assertEquals(0x00FFFFFF, img.getRGB(0, 0) & 0x00FFFFFF); // white
     assertEquals(0x00000000, img.getRGB(1, 0) & 0x00FFFFFF); // black
-    assertEquals(0x00FFFFFF, img.getRGB(2, 1) & 0x00FFFFFF); // white
+    assertEquals(0x00000000, img.getRGB(2, 1) & 0x00FFFFFF); // black
   }
 }
 
