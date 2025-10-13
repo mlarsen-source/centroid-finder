@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DfsBinaryGroupFinder implements BinaryGroupFinder {
@@ -38,6 +39,9 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
         if (image.length == 0 || image[0].length == 0) throw new IllegalArgumentException("array cannot be empty");
         for (int[] subarray: image) {
             if (subarray == null) throw new NullPointerException("subarray cannot be null");
+            for (int num : subarray) {
+                if (num != 0 && num != 1) throw new IllegalArgumentException("array can only contain values of 1 or 0");
+            }
         }
         boolean[][] visited = new boolean[image.length][image[0].length];
         List<Group> groups = new ArrayList<>();
@@ -50,7 +54,8 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
                     groups.add(createGroup(pixels));
                 }
             }
-        } 
+        }
+        Collections.sort(groups); 
         return groups;
     }
 
