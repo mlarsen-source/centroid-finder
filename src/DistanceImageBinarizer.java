@@ -45,7 +45,18 @@ public class DistanceImageBinarizer implements ImageBinarizer {
      */
     @Override
     public int[][] toBinaryArray(BufferedImage image) {
-        return null;
+        int[][] image2 = new int[image.getHeight()][image.getWidth()];
+        for (int row = 0; row < image.getHeight(); row++) {
+            for (int col = 0; col < image.getWidth(); col++) {
+                int color = image.getRGB(row, col);
+                int hexColor = color & 0x00ffffff;
+                double distance = distanceFinder.distance(hexColor,targetColor);
+                if(distance < threshold) {
+                    image2[row][col] = 1;
+                }
+            }
+        }
+        return image2;
     }
 
     /**
