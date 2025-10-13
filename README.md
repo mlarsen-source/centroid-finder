@@ -13,6 +13,8 @@ For this wave, please have each partner make a commit below with their username 
 
 "I, mlarsen-source, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used'"
 
+I, dangrabo, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used
+
 "I, YOUR_GITHUB_USERNAME, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used'"
 
 ## Wave 1: Understand
