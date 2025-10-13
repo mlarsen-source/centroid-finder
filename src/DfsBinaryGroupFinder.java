@@ -55,9 +55,9 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
     }
 
     public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
-    visited[row][col] = true;
-    pixels.add(new int[] { row, col });
-    List<int[]> neighbors = validNeighbors(row, col, image, visited);
+        visited[row][col] = true;
+        pixels.add(new int[] { row, col });
+        List<int[]> neighbors = validNeighbors(row, col, image, visited);
         for (int[] neighbor : neighbors) {
             findConnectedGroups(neighbor[0], neighbor[1], image, visited, pixels);
         }
