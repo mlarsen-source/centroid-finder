@@ -48,7 +48,7 @@ public class DistanceImageBinarizer implements ImageBinarizer {
         int[][] image2 = new int[image.getHeight()][image.getWidth()];
         for (int row = 0; row < image.getHeight(); row++) {
             for (int col = 0; col < image.getWidth(); col++) {
-                int color = image.getRGB(row, col);
+                int color = image.getRGB(col, row);
                 int hexColor = color & 0x00ffffff;
                 double distance = distanceFinder.distance(hexColor,targetColor);
                 if(distance < threshold) {
