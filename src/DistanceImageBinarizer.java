@@ -45,15 +45,15 @@ public class DistanceImageBinarizer implements ImageBinarizer {
      */
     @Override
     public int[][] toBinaryArray(BufferedImage image) {
+        if (image == null) throw new NullPointerException("image cannot be null.");
+        if (image.getWidth() == 0 || image.getHeight() == 0) throw new IllegalArgumentException("image cannot have zero width or height.");
         int[][] image2 = new int[image.getHeight()][image.getWidth()];
         for (int row = 0; row < image.getHeight(); row++) {
             for (int col = 0; col < image.getWidth(); col++) {
                 int color = image.getRGB(col, row);
                 int hexColor = color & 0x00ffffff;
                 double distance = distanceFinder.distance(hexColor,targetColor);
-                if(distance < threshold) {
-                    image2[row][col] = 1;
-                }
+                if(distance < threshold) image2[row][col] = 1;
             }
         }
         return image2;
@@ -69,14 +69,20 @@ public class DistanceImageBinarizer implements ImageBinarizer {
      */
     @Override
     public BufferedImage toBufferedImage(int[][] image) {
-       BufferedImage image2 = new BufferedImage(image[0].length,image.length, BufferedImage.TYPE_INT_RGB);
+        if(image == null) throw new NullPointerException("array cannot be null");
+        if (image.length == 0 || image[0].length == 0) throw new IllegalArgumentException("array cannot be empty");
+        for (int[] subarray: image) {
+            if (subarray == null) throw new NullPointerException("subarray cannot be null");
+            for (int num : subarray) {
+                if (num != 0 && num != 1) throw new IllegalArgumentException("array can only contain values of 1 or 0");
+            }
+        }
+        BufferedImage image2 = new BufferedImage(image[0].length,image.length, BufferedImage.TYPE_INT_RGB);
         for (int row = 0; row < image.length; row++) {
             for (int col = 0; col < image[0].length; col++) {
                 int value = image[row][col];
-                if(value == 1) {
-                    image2.setRGB(col, row, 0xFFFFFF);
-                }
-                else{image2.setRGB(col, row, 0x000000);}
+                if(value == 1) image2.setRGB(col, row, 0xFFFFFF);
+                else image2.setRGB(col, row, 0x000000);
             }
         }
         return image2;
