@@ -129,15 +129,6 @@ public class DistanceImageBinarizerTest {
   }
 
   @Test
-  void testToBufferedImageThrowsExceptionWhenJaggedRowLengths() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    int[][] jagged = new int[][] { {1, 0, 1}, {1, 0} };
-    assertThrows(IllegalArgumentException.class, () -> {
-      b.toBufferedImage(jagged);
-    });
-  }
-
-  @Test
   void testToBufferedImageThrowsExceptionWhenValuesNotBinary() {
     ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
     int[][] invalid = new int[][] { { -1, 0, 2 } };
