@@ -55,11 +55,12 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
                 }
             }
         }
-        Collections.sort(groups); 
+        Collections.sort(groups, Collections.reverseOrder());
         return groups;
     }
 
     public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
+        if(visited[row][col]) return;
         visited[row][col] = true;
         pixels.add(new int[] { row, col });
         List<int[]> neighbors = validNeighbors(row, col, image, visited);
