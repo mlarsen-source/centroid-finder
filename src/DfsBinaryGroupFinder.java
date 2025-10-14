@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,12 +61,38 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
     }
 
     public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
-        if(visited[row][col]) return;
+        if (visited[row][col]) return;
+
+        ArrayDeque<int[]> queue = new ArrayDeque<>();
         visited[row][col] = true;
-        pixels.add(new int[] { row, col });
-        List<int[]> neighbors = validNeighbors(row, col, image, visited);
-        for (int[] neighbor : neighbors) {
-            findConnectedGroups(neighbor[0], neighbor[1], image, visited, pixels);
+        queue.addLast(new int[] { row, col });
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.removeFirst();
+            int r = current[0];
+            int c = current[1];
+            pixels.add(new int[] { r, c });
+
+            // Up
+            if (r - 1 >= 0 && image[r - 1][c] == 1 && !visited[r - 1][c]) {
+                visited[r - 1][c] = true;
+                queue.addLast(new int[] { r - 1, c });
+            }
+            // Down
+            if (r + 1 < image.length && image[r + 1][c] == 1 && !visited[r + 1][c]) {
+                visited[r + 1][c] = true;
+                queue.addLast(new int[] { r + 1, c });
+            }
+            // Left
+            if (c - 1 >= 0 && image[r][c - 1] == 1 && !visited[r][c - 1]) {
+                visited[r][c - 1] = true;
+                queue.addLast(new int[] { r, c - 1 });
+            }
+            // Right
+            if (c + 1 < image[0].length && image[r][c + 1] == 1 && !visited[r][c + 1]) {
+                visited[r][c + 1] = true;
+                queue.addLast(new int[] { r, c + 1 });
+            }
         }
     }
 
