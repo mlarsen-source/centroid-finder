@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class DfsBinaryGroupFinder implements BinaryGroupFinder {
    /**
@@ -60,39 +62,27 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
         return groups;
     }
 
-    public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
+public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
         if (visited[row][col]) return;
 
-        ArrayDeque<int[]> queue = new ArrayDeque<>();
+        Queue<int[]> queue = new LinkedList<>();
         visited[row][col] = true;
-        queue.addLast(new int[] { row, col });
+        queue.offer(new int[] { row, col });
 
         while (!queue.isEmpty()) {
-            int[] current = queue.removeFirst();
+            int[] current = queue.poll();
             int r = current[0];
             int c = current[1];
             pixels.add(new int[] { r, c });
+            
+            List<int[]> neighbors = validNeighbors(r, c, image, visited);
 
-            // Up
-            if (r - 1 >= 0 && image[r - 1][c] == 1 && !visited[r - 1][c]) {
-                visited[r - 1][c] = true;
-                queue.addLast(new int[] { r - 1, c });
-            }
-            // Down
-            if (r + 1 < image.length && image[r + 1][c] == 1 && !visited[r + 1][c]) {
-                visited[r + 1][c] = true;
-                queue.addLast(new int[] { r + 1, c });
-            }
-            // Left
-            if (c - 1 >= 0 && image[r][c - 1] == 1 && !visited[r][c - 1]) {
-                visited[r][c - 1] = true;
-                queue.addLast(new int[] { r, c - 1 });
-            }
-            // Right
-            if (c + 1 < image[0].length && image[r][c + 1] == 1 && !visited[r][c + 1]) {
-                visited[r][c + 1] = true;
-                queue.addLast(new int[] { r, c + 1 });
-            }
+            for (int[] n : neighbors) {
+               int nR = n[0];
+               int nC = n[1];
+               visited[nR][nC] = true;
+               queue.offer(n); 
+            } 
         }
     }
 
