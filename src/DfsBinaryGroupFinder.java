@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class DfsBinaryGroupFinder implements BinaryGroupFinder {
    /**
@@ -57,12 +59,26 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
     }
 
     public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
-        if(visited[row][col]) return;
+        if (visited[row][col]) return;
+
+        Queue<int[]> queue = new LinkedList<>();
         visited[row][col] = true;
-        pixels.add(new int[] { row, col });
-        List<int[]> neighbors = validNeighbors(row, col, image, visited);
-        for (int[] neighbor : neighbors) {
-            findConnectedGroups(neighbor[0], neighbor[1], image, visited, pixels);
+        queue.offer(new int[] { row, col });
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int r = current[0];
+            int c = current[1];
+            pixels.add(new int[] { r, c });
+            
+            List<int[]> neighbors = validNeighbors(r, c, image, visited);
+
+            for (int[] n : neighbors) {
+               int nR = n[0];
+               int nC = n[1];
+               visited[nR][nC] = true;
+               queue.offer(n); 
+            } 
         }
     }
 
