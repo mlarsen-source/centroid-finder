@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.imageio.ImageIO;
+import java.time.LocalTime;
+import java.time.Duration;
 
 /**
  * The Image Summary Application.
@@ -30,6 +32,7 @@ import javax.imageio.ImageIO;
  */
 public class ImageSummaryApp {
     public static void main(String[] args) {
+        LocalTime startTime = LocalTime.now();
         if (args.length < 3) {
             System.out.println("Usage: java ImageSummaryApp <input_image> <hex_target_color> <threshold>");
             return;
@@ -94,6 +97,9 @@ public class ImageSummaryApp {
                 writer.println(group.toCsvRow());
             }
             System.out.println("Groups summary saved as groups.csv");
+            LocalTime endTime = LocalTime.now();
+
+            System.out.println("Duration: " + Duration.between(startTime, endTime));
         } catch (Exception e) {
             System.err.println("Error writing groups.csv");
             e.printStackTrace();
