@@ -68,3 +68,26 @@ Once you have confirmed it is working, clean up your code, make sure it's commit
 ## Optional Wave 7: Enhancements?
 If you want to, you can make a new branch to start experimenting. See if you can come up with a better color distance method (hint: look up perceptual color spaces). See if you can make your code more efficient or mor suited to spotting salamanders! Experiment with other test files. PLEASE MAKE SURE THIS IS IN A SEPARATE BRANCH FROM YOUR SUBMISSION.
 
+
+
+## Centroid Finder Video Part I 
+Due Friday by 11:59pm Points 40 Submitting a website url
+You are allowed to use AI for this assignment
+However, you must be prepared to explain any part of your code and package. Do not just copy things without understanding them! Use the AI to help you understand.
+
+## Overall Goal:
+The overall goal of this project will be to make your centroid finder project be able to process mp4 videos. When working properly, it will generate a CSV that tracks the largest centroid over time. The first column will be the number of seconds since the beginning of the video, and the second and third columns will be the x and y coordinates of the largest found centroid at that time. If no centroid is found at that timestamp, coordinates of (-1, -1) should be used. In this first part, we will be restructuring your centroid finder to work with Maven and choose a video processing library. We will handle the actual video processing in a later assignment.
+
+## Restructuring
+Have one partner make a branch of your centroid-finder project called "video". Then, switch to that branch. Make any small commit changing the README and then push it up. Have all the other partners pull it down and switch to that branch.
+Reorganize your code so that it takes the structure of a Maven project. There's a lot you'll need to move around, and new files you'll need to create. Use the mavenValidate repo as an example. Make sure to properly separate your tests, and make sure that ImageSummaryApp is set as the main class in the pom.
+If everything is working properly, you should be able to run mvn exec:java -Dexec.args="sampleInput/squares.jpg FFA200 164" and have the proper files generated. You should also be able to run mvn test to run the tests from the command line.
+
+## Experimenting
+Research what video libraries exist in Java. Do your best to understand the pros and cons of them. Search online, talk with your partner, and get input from the AI. Make a new file "options.md" and in it write list of at least three options. IN YOUR OWN WORDS write a few pros and cons for each.
+Select one to experiment with. Add it as a dependency in your POM, and make a new class to play around with it. See what it's like to get metadata, and how you extract frame data out of it. Using a small sample video, experiment! Consider switching the main class in your POM to this new experimenting class.
+If you are satisfied with this library, you can use it for your project. If it feels difficult to work with or unsuited to this application, choose another one off your list and experiment with it. Keep going until you find a library you like.
+Begin thinking about how you can integrate this library with your existing code. In future parts to this project, you will perform that integration.
+
+## Submission
+Make sure all your changes (including your experiments with the new video library) are pushed to your video branch. Make a NEW PR from the video branch. Copy the URL of the PR here to submit.
