@@ -61,7 +61,7 @@ public class BinarizingImageGroupFinderTest {
     BufferedImage input = new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
     List<Group> actual = finder.findConnectedGroups(input);
 
-    assertSame("Should return exactly the list produced by groupFinder", expected, actual);
+    assertSame(expected, actual, "Should return exactly the list produced by groupFinder");
     assertEquals(1, mockBinarizer.toBinaryCalls);
     assertSame(input, mockBinarizer.receivedImage);
     assertEquals(1, mockGroupFinder.calls);
