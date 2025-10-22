@@ -29,6 +29,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.jcodec</groupId>
+      <artifactId>jcodec</artifactId>
+      <version>0.2.5</version>
+    </dependency>
+
   </dependencies>
 
   <!-- Build plugins -->
@@ -55,7 +61,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>io.github.mlarsen_source.centroid_finder.ImageSummaryApp</mainClass>
+          <mainClass>io.github.mlarsen_source.centroid_finder.jcodecExample</mainClass>
         </configuration>
       </plugin>
     </plugins>
