@@ -1,9 +1,11 @@
-import static org.junit.Assert.*;
+package io.github.mlarsen_source.centroid_finder;
 
+import static org.junit.jupiter.api.Assertions.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
+
 
 public class DistanceImageBinarizerTest {
 
@@ -95,7 +97,7 @@ public class DistanceImageBinarizerTest {
       for (int x = 0; x < expectedBinarized.getWidth(); x++) {
         int rgb = expectedBinarized.getRGB(x, y) & 0x00FFFFFF;
         int expected = (rgb == 0xFFFFFF) ? 1 : 0;
-        assertEquals("Mismatch at (" + x + "," + y + ")", expected, actual[y][x]);
+        assertEquals(expected, actual[y][x], "Mismatch at (" + x + "," + y + ")");
       }
     }
   }

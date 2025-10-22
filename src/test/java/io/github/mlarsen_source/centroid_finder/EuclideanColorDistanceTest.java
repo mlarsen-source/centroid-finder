@@ -1,6 +1,8 @@
-import static org.junit.Assert.*;
+package io.github.mlarsen_source.centroid_finder;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
 
 public class EuclideanColorDistanceTest {
 

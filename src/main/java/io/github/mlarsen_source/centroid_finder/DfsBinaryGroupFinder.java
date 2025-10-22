@@ -1,8 +1,11 @@
+package io.github.mlarsen_source.centroid_finder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
 
 public class DfsBinaryGroupFinder implements BinaryGroupFinder {
    /**

@@ -1,3 +1,5 @@
+package io.github.mlarsen_source.centroid_finder;
+
 import java.awt.image.BufferedImage;
 
 /**

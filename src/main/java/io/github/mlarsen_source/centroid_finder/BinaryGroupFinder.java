@@ -1,4 +1,7 @@
+package io.github.mlarsen_source.centroid_finder;
+
 import java.util.List;
+
 
 public interface BinaryGroupFinder {
    /**

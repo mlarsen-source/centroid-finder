@@ -1,3 +1,5 @@
+package io.github.mlarsen_source.centroid_finder;
+
 /**
  * Defines an interface for computing the distance between two colors.
  * 
