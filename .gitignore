@@ -36,3 +36,6 @@ Thumbs.db
 
 # mp4 video files
 *.mp4
+
+# PlantUML files
+*.puml
