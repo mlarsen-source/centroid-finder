@@ -45,3 +45,18 @@
 * Combine the largest connected group coordinates located within each frame with the frame timestamp in a TimedCoordinate Record.
 * Collect all of the TimedCoordinate Records identified in the mp4 video into an ArrayList.  
 * Write a CSV file named "output.csv" containing one row per TimeCoordinate Record in the format "time,x,y".
+
+
+### 5. Implement Tests for new classes/methods/behavior
+  * VideoProcessorTest Class
+    * getFPS()
+    * getTime()
+    * getFrames()
+  * VideoGroupFinderTest Class
+    * getTimeGroups
+
+
+### 6. Use Maven to create an executable JAR
+
+
+### 7. Validate that code is accurately tracking the salamander
