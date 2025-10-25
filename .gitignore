@@ -33,3 +33,6 @@ replay_pid*
 .vscode
 .DS_Store
 Thumbs.db
+
+# mp4 video files
+*.mp4
