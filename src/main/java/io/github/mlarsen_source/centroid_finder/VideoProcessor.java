@@ -17,9 +17,8 @@ public class VideoProcessor {
   public ImageGroupFinder videoGroupFinder;
   public FrameGrab frames;
 
-  public VideoProcessor(File video, ImageGroupFinder videoGroupFinder) throws FileNotFoundException, IOException, JCodecException {
+  public VideoProcessor(File video) throws FileNotFoundException, IOException, JCodecException {
     this.video = video;
-    this.videoGroupFinder = videoGroupFinder;
     this.fps = getFps();
     this.frames = getFrames();
   }
