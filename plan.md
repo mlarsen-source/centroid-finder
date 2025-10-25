@@ -1,8 +1,7 @@
-# Centroid Finder Video Part II
-## Wave 1: Plan
+# Centroid Finder Video Part II Plan:
 
 
-### 1. Implement a new TimedCoordinate Record
+## 1. Implement a new TimedCoordinate Record
 
 * Represent the centroid position captured at a specific time in a video or image sequence.
 * Store the timestamp (double time) and a Coordinate (int x, int y).
@@ -10,7 +9,7 @@
 * Provide a toCsvRow() method that formats output as time,x,y for CSV export.
 
 
-### 2. Implement a new VideoProcessor Class
+## 2. Implement a new VideoProcessor Class
 
 * Use the JCodec library to process an MP4 video file.
 * Calculate frames per second (FPS) from total frames and duration.
@@ -19,7 +18,7 @@
 * Provides video data and FrameGrab object to other classes.
 
 
-### 3. Implement a new VideoGroupFinder Class
+## 3. Implement a new VideoGroupFinder Class
 * Instantiate a new empty ArrayList of TimedCoordinate Records.
 * Iterate through each frame within FrameGrab object provided by a VideoProcessor.
 * Use DistanceImageBinarizer class to create 2D binary array of the frame.
@@ -31,9 +30,10 @@
 * Return the ArrayList containing all of the TimedCoordinate Records.
 
 
-### 4. Implement a new VideoSummaryApp Application
+## 4. Implement a new VideoSummaryApp Application
  
 * Accept command-line arguments:
+  
   1. The path to an input mp4 file.
   2. The path to an output csv file.
   3. A target hex color in the format RRGGBB.
@@ -47,21 +47,23 @@
 * Write a CSV file named "output.csv" containing one row per TimeCoordinate Record in the format "time,x,y".
 
 
-### 5. Implement Tests for new classes/methods/behavior
+## 5. Implement Tests for new classes/methods/behavior
   * VideoProcessorTest Class
     * getFPS()
     * getTime()
     * getFrames()
+
   * VideoGroupFinderTest Class
     * getTimeGroups
 
 
-### 6. Use Maven to create an executable JAR
+## 6. Use Maven to create an executable JAR
 
 
-### 7. Validate that code is accurately tracking the salamander
+## 7. Validate that code is accurately tracking the salamander
 
-### Diagrams:
+
+## Diagrams:
 ![High Level Diagram](./diagrams/highlevel.png)
 
 ![UML Diagram](./diagrams/uml.png)
