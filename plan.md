@@ -60,3 +60,9 @@
 
 
 ### 7. Validate that code is accurately tracking the salamander
+
+### Diagrams:
+![High Level Diagram](./diagrams/highlevel.png)
+
+![UML Diagram](./diagrams/uml.png)
+
