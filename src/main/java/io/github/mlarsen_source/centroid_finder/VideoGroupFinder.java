@@ -58,11 +58,8 @@ public class VideoGroupFinder {
     while ((picture = frames.getNativeFrame()) != null) {
       BufferedImage frame = AWTUtil.toBufferedImage(picture);
 
-      // Convert the frame to a binary image
-      int[][] binaryImage = binarizer.toBinaryArray(frame);
-
       // Identify connected white pixel groups
-      List<Group> groups = groupFinder.findConnectedGroups(binaryImage);
+      List<Group> groups = groupFinder.findConnectedGroups(frame);
 
       // Skip frames without any detected groups
       if (groups.isEmpty()) {

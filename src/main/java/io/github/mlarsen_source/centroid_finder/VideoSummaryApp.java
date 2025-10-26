@@ -39,6 +39,10 @@ import java.time.Duration;
 public class VideoSummaryApp {
     public static void main(String[] args) throws IOException, JCodecException {
         LocalTime startTime = LocalTime.now();
+        for(String arg: args){
+            System.out.println(arg);
+        }
+        
         if (args.length < 4) {
             System.out.println("Usage: java ImageSummaryApp <input_image> <output_path> <hex_target_color> <threshold>");
             return;
@@ -55,8 +59,9 @@ public class VideoSummaryApp {
             return;
         }
         
-        String extension = videoPath.split(".")[videoPath.split(".").length - 1].toLowerCase();
-        if (!extension.equals("mp4")) {
+        String[] extension = videoPath.split("\\.");
+        String ext = extension[extension.length-1].toLowerCase();
+        if (!ext.equals("mp4")) {
             throw new IllegalArgumentException("Video type must be mp4");
         }
 
