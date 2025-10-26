@@ -16,7 +16,7 @@
        Compiler Configuration
        ========================= -->
   <properties>
-    <maven.compiler.release>25</maven.compiler.release>
+    <maven.compiler.release>24</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -62,7 +62,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <release>25</release>
+          <release>24</release>
         </configuration>
       </plugin>
 

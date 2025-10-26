@@ -19,8 +19,7 @@ public class VideoProcessor {
     /** The video file to be processed. */
     private final File video;
 
-    /** The frames-per-second (FPS) rate of the video. */
-    private final double fps;
+    private final FrameData frameData;
 
     /**
      * Constructs a VideoProcessor for the specified video file.
@@ -31,7 +30,8 @@ public class VideoProcessor {
      */
     public VideoProcessor(File video) throws IOException, JCodecException {
         this.video = video;
-        this.fps = computeFps();  // Compute and store FPS once
+        FrameData frameData = computeFrameData();
+        this.frameData = frameData;
     }
 
     /**
@@ -40,10 +40,13 @@ public class VideoProcessor {
      * @return the computed frames-per-second (FPS) value
      * @throws IOException if the video file cannot be accessed
      */
-    private double computeFps() throws IOException {
+    private FrameData computeFrameData() throws IOException {
         MP4Demuxer demuxer = MP4Demuxer.createMP4Demuxer(NIOUtils.readableChannel(video));
         DemuxerTrack videoTrack = demuxer.getVideoTrack();
-        return videoTrack.getMeta().getTotalFrames() / videoTrack.getMeta().getTotalDuration();
+        int totalFrames = videoTrack.getMeta().getTotalFrames();
+        double totalDuration = videoTrack.getMeta().getTotalDuration();
+        double fps = totalFrames / totalDuration;
+        return new FrameData(totalFrames, fps);
     }
 
     /**
@@ -52,7 +55,7 @@ public class VideoProcessor {
      * @return the video's frames-per-second (FPS)
      */
      public double getFps() {
-        return fps;
+        return frameData.fps();
     }
 
     /**
@@ -65,7 +68,7 @@ public class VideoProcessor {
      * @return the time in seconds from the start of the video corresponding to that frame
      */
     public double getTime(int frameNumber) {
-        return frameNumber / fps;
+        return frameNumber / frameData.fps();
     }
 
     /**
@@ -81,6 +84,10 @@ public class VideoProcessor {
      */
     public FrameGrab getFrames() throws IOException, JCodecException {
         return FrameGrab.createFrameGrab(NIOUtils.readableChannel(video));
+    }
+
+    public int getTotalFrames() {
+        return frameData.totalFrames();
     }
 }
 

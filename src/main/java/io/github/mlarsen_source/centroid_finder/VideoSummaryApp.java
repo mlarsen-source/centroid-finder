@@ -39,13 +39,22 @@ import java.time.Duration;
 public class VideoSummaryApp {
     public static void main(String[] args) throws IOException, JCodecException {
         LocalTime startTime = LocalTime.now();
-        for(String arg: args){
-            System.out.println(arg);
-        }
         
-        if (args.length < 4) {
+        if (args.length != 4) {
             System.out.println("Usage: java ImageSummaryApp <input_image> <output_path> <hex_target_color> <threshold>");
             return;
+        }
+
+        for (int i = 0; i < args.length; i++) {
+            if (i == 0) {
+                System.out.println("Video path: " + args[i]);
+            } else if (i == 1) {
+                System.out.println("Output path: " + args[i]);
+            } else if (i == 2) {
+                System.out.println("Hex target color: " + args[i]);
+            } else if (i == 3) {
+                System.out.println("Threshold: " + args[i]);
+            }
         }
         
         String videoPath = args[0];
@@ -91,7 +100,7 @@ public class VideoSummaryApp {
         
 
         VideoProcessor videoProcessor = new VideoProcessor(video);
-        VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, binarizer, groupFinder);
+        VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, groupFinder);
         List<TimedCoordinate> groups = videoGroupFinder.getTimeGroups();
         
         // Write the groups information to a CSV file "groups.csv".

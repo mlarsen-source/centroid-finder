@@ -20,9 +20,6 @@ public class VideoGroupFinder {
   /** Provides access to video frames and timing information. */
   private final VideoProcessor processor;
 
-  /** Converts each video frame into a binary 2D array based on color distance. */
-  private final ImageBinarizer binarizer;
-
   /** Finds connected white pixel groups in a binary image using DFS traversal. */
   private final ImageGroupFinder groupFinder;
 
@@ -33,9 +30,8 @@ public class VideoGroupFinder {
    * @param binarizer the DistanceImageBinarizer used to convert frames to binary images
    * @param groupFinder the DfsBinaryGroupFinder used to identify connected pixel groups
    */
-  public VideoGroupFinder(VideoProcessor processor, ImageBinarizer binarizer, ImageGroupFinder groupFinder) {
+  public VideoGroupFinder(VideoProcessor processor, ImageGroupFinder groupFinder) {
     this.processor = processor;
-    this.binarizer = binarizer;
     this.groupFinder = groupFinder;
   }
 
@@ -79,6 +75,10 @@ public class VideoGroupFinder {
       timedCoordinatesList.add(tc);
 
       frameCount++;
+
+      if (frameCount % 100 == 0) {
+        System.out.println("Processed frame " + frameCount + " of " + processor.getTotalFrames());
+      }
     }
 
     return timedCoordinatesList;

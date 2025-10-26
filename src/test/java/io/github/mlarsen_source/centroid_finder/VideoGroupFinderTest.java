@@ -43,21 +43,6 @@ public class VideoGroupFinderTest {
   }
 
   /**
-   * Dummy binarizer not used by VideoGroupFinder but required for construction.
-   */
-  private static class DummyBinarizer implements ImageBinarizer {
-    @Override
-    public int[][] toBinaryArray(BufferedImage image) {
-      throw new UnsupportedOperationException("not used in VideoGroupFinder tests");
-    }
-
-    @Override
-    public BufferedImage toBufferedImage(int[][] image) {
-      throw new UnsupportedOperationException("not used in VideoGroupFinder tests");
-    }
-  }
-
-  /**
    * Subclass of VideoProcessor that throws from getFrames (constructor still validates the file and FPS).
    */
   private static class ThrowingVideoProcessor extends VideoProcessor {
@@ -111,7 +96,7 @@ public class VideoGroupFinderTest {
     for (int i = 0; i < 5; i++) scripted.add(Collections.emptyList());
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
 
-    VideoGroupFinder finder = new VideoGroupFinder(processor, new DummyBinarizer(), groupFinder);
+    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
     List<TimedCoordinate> actual = finder.getTimeGroups();
 
     assertNotNull(actual);
@@ -135,7 +120,7 @@ public class VideoGroupFinderTest {
     scripted.add(Collections.emptyList());
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
-    VideoGroupFinder finder = new VideoGroupFinder(processor, new DummyBinarizer(), groupFinder);
+    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(1, actual.size());
@@ -163,7 +148,7 @@ public class VideoGroupFinderTest {
     for (int i = 0; i < 7; i++) scripted.add(Collections.emptyList());
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
-    VideoGroupFinder finder = new VideoGroupFinder(processor, new DummyBinarizer(), groupFinder);
+    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(2, actual.size());
@@ -192,7 +177,7 @@ public class VideoGroupFinderTest {
     groups.add(smaller);
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(Collections.singletonList(groups));
-    VideoGroupFinder finder = new VideoGroupFinder(processor, new DummyBinarizer(), groupFinder);
+    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(1, actual.size());
@@ -207,7 +192,7 @@ public class VideoGroupFinderTest {
     VideoProcessor throwing = new ThrowingVideoProcessor(video);
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(Collections.emptyList());
-    VideoGroupFinder finder = new VideoGroupFinder(throwing, new DummyBinarizer(), groupFinder);
+    VideoGroupFinder finder = new VideoGroupFinder(throwing, groupFinder);
 
     assertThrows(IOException.class, finder::getTimeGroups);
   }
