@@ -1,11 +1,9 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 import org.jcodec.api.JCodecException;
 
@@ -97,7 +95,6 @@ public class VideoSummaryApp {
         // Create an ImageGroupFinder using a BinarizingImageGroupFinder with a DFS-based BinaryGroupFinder.
         ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new DfsBinaryGroupFinder());
         
-        
 
         VideoProcessor videoProcessor = new VideoProcessor(video);
         VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, groupFinder);
@@ -108,12 +105,12 @@ public class VideoSummaryApp {
             for (TimedCoordinate group : groups) {
                 writer.println(group.toCsvRow());
             }
-            System.out.println("Groups summary saved as groups.csv");
+            System.out.println("TimedCoordinate results saved at "+ outputPath);
             LocalTime endTime = LocalTime.now();
 
             System.out.println("Duration: " + Duration.between(startTime, endTime));
         } catch (Exception e) {
-            System.err.println("Error writing groups.csv");
+            System.err.println("Error writing " + outputPath);
             e.printStackTrace();
         }
     }
