@@ -58,10 +58,14 @@
 
 
 ## 6. Use Maven to create an executable JAR
+  *  Utilize Maven Assembly Plugin to create executable JAR
+
 
 
 ## 7. Validate that code is accurately tracking the salamander
-We had AI make a sample video for us. The video included a white background with an orange slamander slowly moving around the screen. The video also had a number of smaller groups of the same color to make sure we were tracking the right group. Additionally the video had x/y coordinates of the slamander centroid. We ran this video through our program and upon analyzing our results, we could see that at all times, our csv file accuratley reported the location of the salamandar centroid. 
+We had AI make a sample video for us. The video included a white background with an orange salamander slowly moving around the screen. The video also had a number of smaller groups of the same color to make sure we were tracking the right group. Additionally the video had x/y coordinates of the salamander centroid. We ran this video through our program and upon analyzing our results, we could see that at all times, our csv file accurately reported the location of the salamander centroid.
+
+To choose a good color and threshold for our app, we extracted individual frames from the sample ensantina salamander video using JCodec and then using color picking tools we collected a number of different hex values from the salamander pixels as well as the background pixels.  We then utilized AI to assist us in evaluating all of the different color values that we collected in order to determine the best color and threshold value we should use in order to produce the best results.     
 
 
 ## Diagrams:
