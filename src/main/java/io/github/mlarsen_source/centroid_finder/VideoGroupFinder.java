@@ -21,10 +21,10 @@ public class VideoGroupFinder {
   private final VideoProcessor processor;
 
   /** Converts each video frame into a binary 2D array based on color distance. */
-  private final DistanceImageBinarizer binarizer;
+  private final ImageBinarizer binarizer;
 
   /** Finds connected white pixel groups in a binary image using DFS traversal. */
-  private final DfsBinaryGroupFinder groupFinder;
+  private final ImageGroupFinder groupFinder;
 
   /**
    * Constructs a VideoGroupFinder using the specified components.
@@ -33,7 +33,7 @@ public class VideoGroupFinder {
    * @param binarizer the DistanceImageBinarizer used to convert frames to binary images
    * @param groupFinder the DfsBinaryGroupFinder used to identify connected pixel groups
    */
-  public VideoGroupFinder(VideoProcessor processor, DistanceImageBinarizer binarizer, DfsBinaryGroupFinder groupFinder) {
+  public VideoGroupFinder(VideoProcessor processor, ImageBinarizer binarizer, ImageGroupFinder groupFinder) {
     this.processor = processor;
     this.binarizer = binarizer;
     this.groupFinder = groupFinder;

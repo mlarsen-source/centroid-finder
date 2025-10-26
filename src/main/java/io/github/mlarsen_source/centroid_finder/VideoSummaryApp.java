@@ -2,9 +2,13 @@ package io.github.mlarsen_source.centroid_finder;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.imageio.ImageIO;
+
+import org.jcodec.api.JCodecException;
+
 import java.time.LocalTime;
 import java.time.Duration;
 
@@ -33,30 +37,33 @@ import java.time.Duration;
  *   java ImageSummaryApp <input_image> <hex_target_color> <threshold>
  */
 public class VideoSummaryApp {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, JCodecException {
         LocalTime startTime = LocalTime.now();
-        if (args.length < 3) {
-            System.out.println("Usage: java ImageSummaryApp <input_image> <hex_target_color> <threshold>");
+        if (args.length < 4) {
+            System.out.println("Usage: java ImageSummaryApp <input_image> <output_path> <hex_target_color> <threshold>");
             return;
         }
         
-        String inputImagePath = args[0];
-        String hexTargetColor = args[1];
+        String videoPath = args[0];
+        String outputPath = args[1];
+        String hexTargetColor = args[2];
         int threshold = 0;
         try {
-            threshold = Integer.parseInt(args[2]);
+            threshold = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
             System.err.println("Threshold must be an integer.");
             return;
         }
         
-        BufferedImage inputImage = null;
-        try {
-            inputImage = ImageIO.read(new File(inputImagePath));
-        } catch (Exception e) {
-            System.err.println("Error loading image: " + inputImagePath);
-            e.printStackTrace();
-            return;
+        String extension = videoPath.split(".")[videoPath.split(".").length - 1].toLowerCase();
+        if (!extension.equals("mp4")) {
+            throw new IllegalArgumentException("Video type must be mp4");
+        }
+
+        File video = new File(videoPath);
+        
+        if (!video.exists()) {
+            throw new IllegalArgumentException("No such file path exists");
         }
         
         // Parse the target color from a hex string (format RRGGBB) into a 24-bit integer (0xRRGGBB)
@@ -76,12 +83,15 @@ public class VideoSummaryApp {
         // Create an ImageGroupFinder using a BinarizingImageGroupFinder with a DFS-based BinaryGroupFinder.
         ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new DfsBinaryGroupFinder());
         
-        VideoProcessor vp = new VideoProcessor(video, groupFinder)
-        vp.getGroups(video);
+        
+
+        VideoProcessor videoProcessor = new VideoProcessor(video);
+        VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, binarizer, groupFinder);
+        List<TimedCoordinate> groups = videoGroupFinder.getTimeGroups();
         
         // Write the groups information to a CSV file "groups.csv".
-        try (PrintWriter writer = new PrintWriter("groups.csv")) {
-            for (Group group : groups) {
+        try (PrintWriter writer = new PrintWriter(outputPath)) {
+            for (TimedCoordinate group : groups) {
                 writer.println(group.toCsvRow());
             }
             System.out.println("Groups summary saved as groups.csv");
