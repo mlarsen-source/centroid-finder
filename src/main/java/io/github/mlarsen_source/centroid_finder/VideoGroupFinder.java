@@ -51,6 +51,8 @@ public class VideoGroupFinder {
     Picture picture;
     int frameCount = 1;
 
+    System.out.println("Beginning video processing...");
+
     while ((picture = frames.getNativeFrame()) != null) {
       BufferedImage frame = AWTUtil.toBufferedImage(picture);
 
