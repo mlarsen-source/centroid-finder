@@ -61,6 +61,7 @@
 
 
 ## 7. Validate that code is accurately tracking the salamander
+We had AI make a sample video for us. The video included a white background with an orange slamander slowly moving around the screen. The video also had a number of smaller groups of the same color to make sure we were tracking the right group. Additionally the video had x/y coordinates of the slamander centroid. We ran this video through our program and upon analyzing our results, we could see that at all times, our csv file accuratley reported the location of the salamandar centroid. 
 
 
 ## Diagrams:
