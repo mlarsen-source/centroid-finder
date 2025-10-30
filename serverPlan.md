@@ -1,13 +1,18 @@
 # Server Plan
 
-## 1. Setup a connection to a db
+## 1. Create Express App
+
+* Reorder file structure
+* Intall express and other dependencies
+
+## 2. Setup a connection to a db
 
 * Use mysql2 with phpMyAdmin
 * use ORM sequelize
 * Crete neccesary schema and repo layer
 
 
-## 2. Build Express Server
+## 3. Build Express Server
 
 * Configure .env file
 * Create all routes for salamander API
