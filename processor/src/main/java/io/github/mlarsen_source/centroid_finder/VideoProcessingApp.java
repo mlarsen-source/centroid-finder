@@ -34,8 +34,20 @@ import java.time.Duration;
  * Usage:
  *   java ImageSummaryApp <input_image> <hex_target_color> <threshold>
  */
-public class VideoSummaryApp {
+public class VideoProcessingApp {
     public static void main(String[] args) throws IOException, JCodecException {
+        
+        if (args.length != 4) {
+            System.out.println("Usage: java VideoProcessingApp <input_mp4_path> <output_csv_path> <hex_target_color> <threshold>");
+            return;
+        }
+
+        System.out.println("Video path: " + args[0]);
+        System.out.println("Output path: " + args[1]);
+        System.out.println("Hex target color: " + args[2]);
+        System.out.println("Threshold: " + args[3]);
+
+
         LocalTime startTime = LocalTime.now();
         
         if (args.length != 4) {
