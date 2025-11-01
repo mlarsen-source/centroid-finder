@@ -91,7 +91,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>io.github.mlarsen_source.centroid_finder.VideoSummaryApp</mainClass>
+              <mainClass>io.github.mlarsen_source.centroid_finder.VideoProcessingApp</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
