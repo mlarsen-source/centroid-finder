@@ -39,3 +39,7 @@ Thumbs.db
 
 # PlantUML files
 *.puml
+
+node_modules
+
+.env
