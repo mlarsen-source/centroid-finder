@@ -11,4 +11,4 @@ router.post('/process/:fileName', startProcessVideo);
 router.get('/process/:jobId/status', getStatus);
 
 
-export default router
+export default router;

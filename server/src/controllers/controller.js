@@ -4,6 +4,7 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
 import fs from "fs"
+import { v4 as uuidv4 } from 'uuid';
 
 
 export const getAllVideos = async (req, res) => {
@@ -46,15 +47,10 @@ export const startProcessVideo = async (req, res) => {
     if (!fileName || !targetColor || threshold)
       res.status(400).json({ error: "Missing targetColor or threshold query parameter." });
 
-    //TODO: pick UUID package
-    // const jobId = getUUID();
-    let jobId = 123;
+    const jobId = uuidv4();
+    const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
 
-    //create job in database with status: processing
-    createJob(jobId, fileName);
-
-    //start actual job with java
-    // processVideo(jobId, fileName, targetColor, threshold);
+    createJob(jobId, fileName, outputPath);
 
     res.status(200).json({ jobId });
   } catch {
@@ -64,16 +60,18 @@ export const startProcessVideo = async (req, res) => {
 
 export const getStatus = async (req, res) => {
   try {
-    const jobId = req.params;
-    const { status, result } = checkJob(jobId)
+    const { jobId } = req.params;
+    
+    const { status, outputPath } = await checkJob(jobId);
+    const allowed = ['error', 'processing', 'done'];
 
-    if (!status) res.status(404).json({ "error": "Job ID not found" });
+    if (!allowed.includes(status)) res.status(404).json({ "error": "Job ID not found" });
 
     if (status === 'processing') res.status(200).json({ "status": "processing" });
 
-    if (status === 'done') res.status(200).json({ status, result });
+    if (status === 'done') res.status(200).json({ status, outputPath });
 
-    res.status(200).json({ status, "error" : "Error processing video: Unexpected ffmpeg error"})
+    if (status === 'error') res.status(200).json({ status, "error" : "Error processing video: Unexpected ffmpeg error"})
 
   } catch {
     res.status(500).json({ "error": "Error fetching job status" })
