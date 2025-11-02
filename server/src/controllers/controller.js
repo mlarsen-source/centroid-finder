@@ -1,6 +1,7 @@
 import {createJob, checkJob } from "./../repos/repos.js";
 // import { processVideo } from "?";
 import ffmpeg from "fluent-ffmpeg";
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
 import fs from "fs"
 
@@ -16,6 +17,7 @@ export const getAllVideos = async (req, res) => {
 };
 
 export const getThumbnail = (req, res) => {
+  ffmpeg.setFfmpegPath(ffmpegInstaller.path);
   const { fileName } = req.params;
   const videoPath = path.join(process.env.VIDEO_DIR, fileName);
   const tempImage = path.join("./public", `${fileName}-thumb.jpg`);
@@ -46,13 +48,13 @@ export const startProcessVideo = async (req, res) => {
 
     //TODO: pick UUID package
     // const jobId = getUUID();
-    let jobId;
+    let jobId = 123;
 
     //create job in database with status: processing
     createJob(jobId, fileName);
 
     //start actual job with java
-    processVideo(jobId, fileName, targetColor, threshold);
+    // processVideo(jobId, fileName, targetColor, threshold);
 
     res.status(200).json({ jobId });
   } catch {
