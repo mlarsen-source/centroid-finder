@@ -1,21 +1,20 @@
-import {createJob, checkJob } from "./../repos/repos.js";
+import { createJob, checkJob } from "./../repos/repos.js";
 // import { processVideo } from "?";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
-import fs from "fs"
+import fs from "fs";
 import fsP from "fs/promises";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { spawn } from "child_process";
-
 
 export const getAllVideos = async (req, res) => {
   try {
     const videos = await fsP.readdir(process.env.VIDEO_DIR);
     res.status(200).json(videos);
-    } catch{
-      res.status(500).json({ error: "Error reading video directory" });
-    }
+  } catch {
+    res.status(500).json({ error: "Error reading video directory" });
+  }
 };
 
 export const getThumbnail = (req, res) => {
@@ -27,7 +26,7 @@ export const getThumbnail = (req, res) => {
   ffmpeg(videoPath)
     .on("end", () => {
       res.status(200).sendFile(path.resolve(tempImage), (err) => {
-        fs.unlink(tempImage, () => {}); 
+        fs.unlink(tempImage, () => {});
       });
     })
     .on("error", (err) => {
@@ -45,26 +44,25 @@ export const startProcessVideo = async (req, res) => {
   const { fileName } = req.params;
   const { targetColor, threshold } = req.query;
   try {
-    if (!fileName || !targetColor || threshold)
-      res.status(400).json({ error: "Missing targetColor or threshold query parameter." });
+    if (!fileName || !targetColor || !threshold)
+      res
+        .status(400)
+        .json({ error: "Missing targetColor or threshold query parameter." });
 
     const jobId = uuidv4();
     const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
-    const videoPath = `${process.env.VIDEOS_DIR}/${fileName}`
+    const videoPath = `${process.env.VIDEOS_DIR}/${fileName}`;
 
+    console.log('Creating Job');
     createJob(jobId, fileName, outputPath);
 
-    const child = spawn("java", [
-    "-jar",
-    process.env.JAR_PATH,
-    videoPath,
-    outputPath,
-    targetColor,
-    threshold
-  ],  {
-    detached: true,
-    stdio: "ignore"  
-  });
+    const jarPath = path.resolve(
+      process.cwd(),
+      "../processor/target/centroid-finder-1.0.0-jar-with-dependencies.jar"
+    );
+    
+    console.log('running processor');
+    runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, onDone);
 
     res.status(200).json({ jobId });
   } catch {
@@ -72,22 +70,50 @@ export const startProcessVideo = async (req, res) => {
   }
 };
 
+function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, onDone) {
+  const child = spawn(
+    "java",
+    ["-jar", jarPath, videoPath, outputPath, targetColor, threshold],
+    { shell: false, stdio: ["ignore", "pipe", "pipe"] }
+  );
+  console.log('child spawned');
+  child.stdout.on('data', d => console.log(d.toString()));
+  child.on("close", code => onDone(code === 0));
+}
+
+function onDone(exitCode) {
+  console.log('onDone hit');
+  if (exitCode) {
+    console.log('onDone sucess');
+    // updateJob(jobId, "done");
+  } else {
+    console.log('onDone error');
+    // updateJob(jobId, "error");
+  }
+}
+
 export const getStatus = async (req, res) => {
   try {
     const { jobId } = req.params;
-    
+
     const { status, outputPath } = await checkJob(jobId);
-    const allowed = ['error', 'processing', 'done'];
+    const allowed = ["error", "processing", "done"];
 
-    if (!allowed.includes(status)) res.status(404).json({ "error": "Job ID not found" });
+    if (!allowed.includes(status))
+      res.status(404).json({ error: "Job ID not found" });
 
-    if (status === 'processing') res.status(200).json({ "status": "processing" });
+    if (status === "processing") res.status(200).json({ status: "processing" });
 
-    if (status === 'done') res.status(200).json({ status, outputPath });
+    if (status === "done") res.status(200).json({ status, outputPath });
 
-    if (status === 'error') res.status(200).json({ status, "error" : "Error processing video: Unexpected ffmpeg error"})
-
+    if (status === "error")
+      res
+        .status(200)
+        .json({
+          status,
+          error: "Error processing video: Unexpected ffmpeg error",
+        });
   } catch {
-    res.status(500).json({ "error": "Error fetching job status" })
+    res.status(500).json({ error: "Error fetching job status" });
   }
 };
