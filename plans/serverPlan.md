@@ -31,7 +31,7 @@
 **GET** `/api/videos`
 
 **Description:**  
-Return a list of all video files in the mounted directory, available publicly at /videos/VIDEO_NAME.
+Return a list of all video files in the mounted directory, available publicly at /videos/VIDEOS_NAME.
 
 **Responses:**
 

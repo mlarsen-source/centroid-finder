@@ -10,7 +10,7 @@ import { spawn } from "child_process";
 
 export const getAllVideos = async (req, res) => {
   try {
-    const videos = await fsP.readdir(process.env.VIDEO_DIR);
+    const videos = await fsP.readdir(process.env.VIDEOS_DIR);
     res.status(200).json(videos);
   } catch {
     res.status(500).json({ error: "Error reading video directory" });
@@ -20,7 +20,7 @@ export const getAllVideos = async (req, res) => {
 export const getThumbnail = (req, res) => {
   ffmpeg.setFfmpegPath(ffmpegInstaller.path);
   const { fileName } = req.params;
-  const videoPath = path.join(process.env.VIDEO_DIR, fileName);
+  const videoPath = path.join(process.env.VIDEOS_DIR, fileName);
   const tempImage = path.join("./public", `${fileName}-thumb.jpg`);
 
   ffmpeg(videoPath)
