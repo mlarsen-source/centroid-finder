@@ -1,4 +1,4 @@
-import { createJob, checkJob } from "./../repos/repos.js";
+import { createJob, checkJob, updateStatus } from "./../repos/repos.js";
 // import { processVideo } from "?";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
@@ -62,7 +62,7 @@ export const startProcessVideo = async (req, res) => {
     );
     
     console.log('running processor');
-    runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, onDone);
+    runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId);
 
     res.status(200).json({ jobId });
   } catch {
@@ -70,27 +70,19 @@ export const startProcessVideo = async (req, res) => {
   }
 };
 
-function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, onDone) {
+function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId) {
   const child = spawn(
     "java",
     ["-jar", jarPath, videoPath, outputPath, targetColor, threshold],
-    { shell: false, stdio: ["ignore", "pipe", "pipe"] }
-  );
+    { shell: false, stdio: ["ignore", "pipe", "pipe"],  detached: true});
+
+  child.unref(); 
+
   console.log('child spawned');
   child.stdout.on('data', d => console.log(d.toString()));
-  child.on("close", code => onDone(code === 0));
+  child.on("close", code => updateStatus(jobId, code === 0));
 }
 
-function onDone(exitCode) {
-  console.log('onDone hit');
-  if (exitCode) {
-    console.log('onDone sucess');
-    // updateJob(jobId, "done");
-  } else {
-    console.log('onDone error');
-    // updateJob(jobId, "error");
-  }
-}
 
 export const getStatus = async (req, res) => {
   try {

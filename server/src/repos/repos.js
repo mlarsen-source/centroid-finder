@@ -23,3 +23,23 @@ export const checkJob = async (jobId) => {
     return { status: "not found" };
   }
 };
+
+export const updateStatus = async(jobId, success) =>{
+  if(success){ schema.update(
+    {
+      status: "done"
+    },
+  {
+    where: 
+      {jobID: jobId}})
+  }
+
+else{ schema.update(
+    {
+      status: "error"
+    },
+  {
+    where: 
+      {jobID: jobId}
+  })
+}}
