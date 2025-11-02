@@ -4,17 +4,17 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
 import fs from "fs"
+import fsP from "fs/promises";
 import { v4 as uuidv4 } from 'uuid';
 
 
 export const getAllVideos = async (req, res) => {
   try {
-    const videos = await allVideos();
-
-    res.status(200).json({ videos });
-  } catch {
-    res.status(500).json({ error: "Error reading video directory" });
-  }
+    const videos = await fsP.readdir(process.env.VIDEO_DIR);
+    res.status(200).json(videos);
+    } catch{
+      res.status(500).json({ error: "Error reading video directory" });
+    }
 };
 
 export const getThumbnail = (req, res) => {
