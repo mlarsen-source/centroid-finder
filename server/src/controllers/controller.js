@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs"
 import fsP from "fs/promises";
 import { v4 as uuidv4 } from 'uuid';
+import { spawn } from "child_process";
 
 
 export const getAllVideos = async (req, res) => {
@@ -49,8 +50,21 @@ export const startProcessVideo = async (req, res) => {
 
     const jobId = uuidv4();
     const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
+    const videoPath = `${process.env.VIDEOS_DIR}/${fileName}`
 
     createJob(jobId, fileName, outputPath);
+
+    const child = spawn("java", [
+    "-jar",
+    process.env.JAR_PATH,
+    videoPath,
+    outputPath,
+    targetColor,
+    threshold
+  ],  {
+    detached: true,
+    stdio: "ignore"  
+  });
 
     res.status(200).json({ jobId });
   } catch {
