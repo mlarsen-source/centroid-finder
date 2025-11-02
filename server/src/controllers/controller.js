@@ -1,5 +1,9 @@
-import { allVideos, createJob, checkJob } from "./../repos/repos.js";
-import { generateThumbnail, processVideo } from "?";
+import {createJob, checkJob } from "./../repos/repos.js";
+// import { processVideo } from "?";
+import ffmpeg from "fluent-ffmpeg";
+import path from "path";
+import fs from "fs"
+
 
 export const getAllVideos = async (req, res) => {
   try {
@@ -11,15 +15,26 @@ export const getAllVideos = async (req, res) => {
   }
 };
 
-export const getThumbnail = async (req, res) => {
-  try {
-    const { fileName } = req.params;
-    const thumbnail = await generateThumbnail(fileName);
+export const getThumbnail = (req, res) => {
+  const { fileName } = req.params;
+  const videoPath = path.join(process.env.VIDEO_DIR, fileName);
+  const tempImage = path.join("./public", `${fileName}-thumb.jpg`);
 
-    res.status(200).sendFile(thumbnail);
-  } catch {
-    res.status(500).json({ error: "Error generating thumbnail" });
-  }
+  ffmpeg(videoPath)
+    .on("end", () => {
+      res.status(200).sendFile(path.resolve(tempImage), (err) => {
+        fs.unlink(tempImage, () => {}); 
+      });
+    })
+    .on("error", (err) => {
+      console.error("FFmpeg error:", err);
+      res.status(500).json({ error: "Error generating thumbnail" });
+    })
+    .screenshots({
+      timestamps: [0],
+      filename: path.basename(tempImage),
+      folder: "./public",
+    });
 };
 
 export const startProcessVideo = async (req, res) => {
@@ -34,7 +49,7 @@ export const startProcessVideo = async (req, res) => {
     let jobId;
 
     //create job in database with status: processing
-    createJob(jobId);
+    createJob(jobId, fileName);
 
     //start actual job with java
     processVideo(jobId, fileName, targetColor, threshold);
