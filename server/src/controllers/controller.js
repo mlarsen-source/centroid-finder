@@ -94,7 +94,7 @@ export function runProcessor(jarPath, videoPath, outputPath, targetColor, thresh
     updateStatus(jobId, false); 
   });
 
-  // 🔹 Handle proper process exits (normal or crash)
+  // Handle proper process exits (normal or crash)
   child.on("close", code => updateStatus(jobId, code === 0));
 }
 

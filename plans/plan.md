@@ -69,7 +69,7 @@ To choose a good color and threshold for our app, we extracted individual frames
 
 
 ## Diagrams:
-![High Level Diagram](./diagrams/highlevel.png)
+![High Level Diagram](./processor/diagrams/highlevel.png)
 
-![UML Diagram](./diagrams/uml.png)
+![UML Diagram](./processor/diagrams/uml.png)
 
