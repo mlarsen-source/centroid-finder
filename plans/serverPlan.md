@@ -179,3 +179,12 @@ Check whether the job is still running, has completed, or failed.
     "error": "Error fetching job status"
   }
   ```
+
+## Diagrams:
+![High Level Diagram](./server/diagrams/diagram_high_level.png)
+
+![HTTP Layer Diagram](./server/diagrams/diagram_HTTP_layer.png)
+
+![Service Layer Diagram](./server/diagrams/diagram_service_layer.png)
+
+![Repository Layer Diagram](./server/diagrams/diagram_repository_layer.png)
