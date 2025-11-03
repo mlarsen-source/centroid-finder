@@ -75,7 +75,7 @@ export const startProcessVideo = async (req, res) => {
   }
 };
 
-function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId) {
+export function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId) {
   const child = spawn(
     "java",
     ["-jar", jarPath, videoPath, outputPath, targetColor, threshold],
