@@ -1,98 +1,96 @@
-// Import Chai's assertion library for making readable test checks
 import { expect } from "chai";
-
-// Import Node's built-in filesystem and path modules
-// These let us create, read, and delete test files and directories
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
-
-// Import the controller function we're testing
 import { getAllVideos } from "../controllers/controller.js";
 
-// Define a temporary directory to use for testing
-// This acts as a fake "videos" folder for our tests
-const TEST_DIR = "./src/tests/mock_videos";
-
-// Begin a Mocha test suite for the getAllVideos controller
-describe("Controller: getAllVideos", () => {
-
-  // ----------------------------
-  // Setup step (runs once before all tests)
-  // ----------------------------
-  before(() => {
-    // If our mock video directory doesn’t exist, create it (including any parent folders)
-    if (!fs.existsSync(TEST_DIR)) fs.mkdirSync(TEST_DIR, { recursive: true });
-
-    // Create two empty .mp4 files inside that directory to simulate real videos
-    fs.writeFileSync(path.join(TEST_DIR, "test1.mp4"), "");
-    fs.writeFileSync(path.join(TEST_DIR, "test2.mp4"), "");
-
-    // Override the environment variable so the controller reads from our mock directory
-    process.env.VIDEOS_DIR = TEST_DIR;
-  });
-
-  // ----------------------------
-  // Cleanup step (runs once after all tests)
-  // ----------------------------
-  after(() => {
-    // Remove the mock directory and all its contents
-    // `force: true` ensures it deletes even if something’s locked or missing
-    fs.rmSync(TEST_DIR, { recursive: true, force: true });
-  });
-
-  // ----------------------------
-  // Test Case 1: Successful directory read
-  // ----------------------------
-  it("should return 200 and a list of videos", async () => {
-    // Create a fake Express response object
-    // These two functions mimic how Express sets status and returns JSON
-    const mockRes = {
-      status: function (code) {
-        this.statusCode = code; // store the status code
-        return this;            // return `this` to allow chaining (res.status().json())
-      },
-      json: function (data) {
-        this.data = data;       // store whatever data the controller sends
-      },
-    };
-
-    // Call the controller with an empty request object and our mock response
-    await getAllVideos({}, mockRes);
-
-    // Assertions:
-    // 1. The response should have HTTP 200 (success)
-    expect(mockRes.statusCode).to.equal(200);
-    // 2. The data should be an array containing our test filenames
-    expect(mockRes.data).to.be.an("array").that.includes("test1.mp4");
-  });
-});
-
-// ----------------------------
-// Test Case 2: Directory read failure
-// ----------------------------
-// Note: This test is *outside* the main `describe` block to run independently
-it("should return 500 if the video directory cannot be read", async () => {
-  // Set the videos directory to a path that doesn’t exist
-  // This will force the controller to throw an error
-  process.env.VIDEOS_DIR = "./src/tests/fake_dir_does_not_exist";
-
-  // Same type of mock response object as above
-  const mockRes = {
+/**
+ * Creates a mock response object that mimics the behavior of Express.js.
+ * This allows the controller function to call res.status() and res.json()
+ * without requiring an actual running server.
+ */
+function createMockRes() {
+  return {
+    statusCode: null,
+    jsonData: null,
     status(code) {
       this.statusCode = code;
       return this;
     },
     json(data) {
-      this.data = data;
+      this.jsonData = data;
+      return this;
     },
   };
+}
 
-  // Call the controller, expecting it to fail
-  await getAllVideos({}, mockRes);
+/**
+ * Test suite for the getAllVideos controller function.
+ * These tests focus on verifying that the function handles both
+ * successful and failing filesystem reads correctly.
+ */
+describe("UNIT: getAllVideos()", () => {
+  // Define a path for a temporary folder used only during these tests
+  const tempDir = path.join(process.cwd(), "src", "tests", "temp_videos");
 
-  // Assertions:
-  // 1. Controller should respond with HTTP 500 (internal server error)
-  expect(mockRes.statusCode).to.equal(500);
-  // 2. The response body should include an "error" property
-  expect(mockRes.data).to.have.property("error");
+  /**
+   * before() runs once before all tests in this suite.
+   * It ensures the temporary test directory exists and updates
+   * the VIDEOS_DIR environment variable to point there.
+   */
+  before(async () => {
+    await fs.mkdir(tempDir, { recursive: true });
+    process.env.VIDEOS_DIR = tempDir;
+  });
+
+  /**
+   * after() runs once after all tests in this suite.
+   * It deletes any files created in the temporary directory,
+   * then removes the directory itself to leave the workspace clean.
+   */
+  after(async () => {
+    const files = await fs.readdir(tempDir);
+    for (const f of files) {
+      await fs.unlink(path.join(tempDir, f));
+    }
+    await fs.rmdir(tempDir);
+  });
+
+  /**
+   * Test case: verifies that getAllVideos() responds with HTTP 200
+   * and includes the expected file name when the directory read succeeds.
+   */
+  it("should return 200 and a list of videos when directory has files", async () => {
+    // Arrange: create a dummy .mp4 file inside the test directory
+    const sampleFile = path.join(tempDir, "video1.mp4");
+    await fs.writeFile(sampleFile, "fake content");
+
+    const res = createMockRes();
+
+    // Act: call the controller with no request object (req is unused)
+    await getAllVideos({}, res);
+
+    // Assert: expect a successful response with the correct file name
+    expect(res.statusCode).to.equal(200);
+    expect(res.jsonData).to.include("video1.mp4");
+  });
+
+  /**
+   * Test case: verifies that getAllVideos() returns HTTP 500 and an error object
+   * when the target directory cannot be read (e.g., missing path).
+   */
+  it("should return 500 when the directory does not exist", async () => {
+    // Temporarily change VIDEOS_DIR to an invalid path
+    const oldDir = process.env.VIDEOS_DIR;
+    process.env.VIDEOS_DIR = path.join(tempDir, "does_not_exist");
+
+    const res = createMockRes();
+    await getAllVideos({}, res);
+
+    // Assert: expect a 500 error response with an 'error' field in JSON
+    expect(res.statusCode).to.equal(500);
+    expect(res.jsonData).to.have.property("error");
+
+    // Restore the original VIDEOS_DIR value for subsequent tests
+    process.env.VIDEOS_DIR = oldDir;
+  });
 });
