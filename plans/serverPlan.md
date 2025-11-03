@@ -181,10 +181,10 @@ Check whether the job is still running, has completed, or failed.
   ```
 
 ## Diagrams:
-![High Level Diagram](./server/diagrams/diagram_high_level.png)
+![High Level Diagram](server/diagrams/diagram_high_level.png)
 
-![HTTP Layer Diagram](./server/diagrams/diagram_HTTP_layer.png)
+![HTTP Layer Diagram](server/diagrams/diagram_HTTP_layer.png)
 
-![Service Layer Diagram](./server/diagrams/diagram_service_layer.png)
+![Service Layer Diagram](server/diagrams/diagram_service_layer.png)
 
-![Repository Layer Diagram](./server/diagrams/diagram_repository_layer.png)
+![Repository Layer Diagram](server/diagrams/diagram_repository_layer.png)
