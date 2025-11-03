@@ -107,14 +107,14 @@ export const getStatus = async (req, res) => {
     const allowed = ["error", "processing", "done"];
 
     if (!allowed.includes(status))
-      res.status(404).json({ error: "Job ID not found" });
+      return res.status(404).json({ error: "Job ID not found" });
 
-    if (status === "processing") res.status(200).json({ status: "processing" });
+    if (status === "processing") return res.status(200).json({ status: "processing" });
 
-    if (status === "done") res.status(200).json({ status, outputPath });
+    if (status === "done") return res.status(200).json({ status, outputPath });
 
     if (status === "error")
-      res
+      return res
         .status(200)
         .json({
           status,
