@@ -16,28 +16,36 @@ export const getAllVideos = async (req, res) => {
   }
 };
 
-export const getThumbnail = (req, res) => {
+export const getThumbnail = async (req, res) => {
   ffmpeg.setFfmpegPath(ffmpegInstaller.path);
   const { fileName } = req.params;
   const videoPath = path.join(process.env.VIDEOS_DIR, fileName);
   const tempImage = path.join("./public", `${fileName}-thumb.jpg`);
 
-  ffmpeg(videoPath)
-    .on("end", () => {
-      res.status(200).sendFile(path.resolve(tempImage), (err) => {
-        fs.unlink(tempImage, () => {});
-      });
-    })
-    .on("error", (err) => {
-      console.error("FFmpeg error:", err);
-      res.status(500).json({ error: "Error generating thumbnail" });
-    })
-    .screenshots({
-      timestamps: [0],
-      filename: path.basename(tempImage),
-      folder: "./public",
+  try {
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoPath)
+        .on("end", () => {
+          res.status(200).sendFile(path.resolve(tempImage), (err) => {
+            fs.unlink(tempImage, () => {}); 
+          });
+          resolve();
+        })
+        .on("error", (err) => {
+          console.error("FFmpeg error:", err);
+          reject(err); 
+        })
+        .screenshots({
+          timestamps: [0],
+          filename: path.basename(tempImage),
+          folder: "./public",
+        });
     });
+  } catch (err) {
+    res.status(500).json({ error: "Error generating thumbnail" });
+  }
 };
+
 
 export const startProcessVideo = async (req, res) => {
   const { fileName } = req.params;
