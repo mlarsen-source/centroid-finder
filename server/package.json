@@ -25,7 +25,7 @@
   "contributors": [],
   "scripts": {
     "dev": "nodemon src/server.js",
-    "test": ""
+    "test": "mocha src/tests --timeout 10000"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -37,6 +37,9 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "chai": "^6.2.0",
+    "mocha": "^11.7.4",
+    "nodemon": "^3.1.10",
+    "sinon": "^21.0.0"
   }
 }
