@@ -1,7 +1,6 @@
 import schema from "./../models/models.js";
-import { Op } from "sequelize";
 
-export const createJob = async (jobId, fileName, outputPath) => {
+export const createJob = async (jobId, outputPath) => {
   const job = {
     jobId,
     status: "processing",
@@ -34,12 +33,13 @@ export const updateStatus = async(jobId, success) =>{
       {jobID: jobId}})
   }
 
-else{ schema.update(
+  else { schema.update(
     {
       status: "error"
     },
-  {
-    where: 
-      {jobID: jobId}
-  })
-}}
+    {
+      where: 
+        {jobId: jobId}
+    })
+  }
+}

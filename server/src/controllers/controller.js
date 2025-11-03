@@ -1,5 +1,4 @@
 import { createJob, checkJob, updateStatus } from "./../repos/repos.js";
-// import { processVideo } from "?";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
@@ -44,10 +43,10 @@ export const startProcessVideo = async (req, res) => {
   const { fileName } = req.params;
   const { targetColor, threshold } = req.query;
   try {
-    if (!fileName || !targetColor || !threshold)
-      res
-        .status(400)
-        .json({ error: "Missing targetColor or threshold query parameter." });
+    if (!fileName || !targetColor || !threshold) {
+      res.status(400).json({ error: "Missing targetColor or threshold query parameter." });
+      return;
+    }
 
     const jobId = uuidv4();
     const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
@@ -56,10 +55,8 @@ export const startProcessVideo = async (req, res) => {
     console.log('Creating Job');
     createJob(jobId, fileName, outputPath);
 
-    const jarPath = path.resolve(
-      process.cwd(),
-      "../processor/target/centroid-finder-1.0.0-jar-with-dependencies.jar"
-    );
+    const jarPath = path.resolve(process.env.JAR_PATH);
+
     
     console.log('running processor');
     runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId);
@@ -79,7 +76,17 @@ function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jo
   child.unref(); 
 
   console.log('child spawned');
+
+  // capture normal runtime logs
   child.stdout.on('data', d => console.log(d.toString()));
+
+  // Handle startup failures (JAR not found)
+  child.on("error", (err) => {
+    console.error("Failed to start JAR process:", err);
+    updateStatus(jobId, false); 
+  });
+
+  // 🔹 Handle proper process exits (normal or crash)
   child.on("close", code => updateStatus(jobId, code === 0));
 }
 
