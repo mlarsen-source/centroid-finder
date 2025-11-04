@@ -57,7 +57,11 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
                 }
             }
         }
-        Collections.sort(groups, Collections.reverseOrder());
+        // Collections.sort(groups, Collections.reverseOrder());
+        Group largest = new Group(0, new Coordinate(0,0));
+        for (Group g : groups) {
+            if (g.compareTo(largest) > 0 ) largest = g;
+        }
         return groups;
     }
 
