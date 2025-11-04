@@ -4,7 +4,7 @@ import apiRouter from './routes/routes.js';
 
 const app = express();
 
-app.use(express.static("src/public"));
+app.use(express.static("public"));
 app.use(express.json());
 
 //routes...
