@@ -29,23 +29,14 @@ services:
     ports:
       - "8081:80"
 
-  processor:
+  app:
     build:
-      context: ./processor
-    ports:
-      - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  server:
-    build:
-      context: ./server
+      context: .
     ports:
       - "3001:3001"
     depends_on:
-      - db
-      # - processor
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_USER: ${DB_USER}
@@ -53,14 +44,26 @@ services:
       DB_NAME: ${DB_NAME}
       DB_PORT: 3306
       DB_DIALECT: ${DB_DIALECT}
-      VIDEOS_DIR: ${VIDEOS_DIR}
-      RESULTS_DIR: ${RESULTS_DIR}
-      JAR_PATH: ${JAR_PATH}
+      VIDEOS_DIR: /app/server/public/videos
+      RESULTS_DIR: /app/server/public/results
+      JAR_PATH: /app/processor/app.jar
+      NODE_ENV: production
+    volumes:
+      - videos:/videos
+      - results:/results
+    restart: unless-stopped
 
   #frontend:
   #build:
   #   context: ./frontend
   # ports:
   #   - "3000:3000"
+  # volumes:
+  #     - videos:/videos
+  #     - results:/results
   # depends_on:
   #   - server
+
+volumes:
+  videos:
+  results:

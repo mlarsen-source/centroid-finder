@@ -76,17 +76,33 @@ export const startProcessVideo = async (req, res) => {
 };
 
 export function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId) {
-  const child = spawn(
-    "java",
-    ["-jar", jarPath, videoPath, outputPath, targetColor, threshold],
-    { shell: false, stdio: ["ignore", "pipe", "pipe"],  detached: true});
+  const args = ["-jar", jarPath, videoPath, outputPath, targetColor, threshold];
+  console.log('spawning:', 'java', ...args);
+
+  const child = spawn("java", args, {
+    shell: false,
+    stdio: ["ignore", "pipe", "pipe"],
+    detached: true
+  });
 
   child.unref(); 
 
-  console.log('child spawned');
+  console.log('child spawned changed');
 
-  // capture normal runtime logs
-  child.stdout.on('data', d => console.log(d.toString()));
+  // capture normal runtime logs (stdout + stderr) with helpful prefixes
+  child.on('spawn', () => console.log('child started pid:', child.pid));
+
+  if (child.stdout) {
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', data => process.stdout.write(`[processor:${jobId}] ${data}`));
+    child.stdout.on('end', () => console.log(`[processor:${jobId}] stdout ended`));
+  }
+
+  if (child.stderr) {
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', data => process.stderr.write(`[processor:${jobId}][err] ${data}`));
+    child.stderr.on('end', () => console.log(`[processor:${jobId}] stderr ended`));
+  }
 
   // Handle startup failures (JAR not found)
   child.on("error", (err) => {
@@ -95,7 +111,10 @@ export function runProcessor(jarPath, videoPath, outputPath, targetColor, thresh
   });
 
   // Handle proper process exits (normal or crash)
-  child.on("close", code => updateStatus(jobId, code === 0));
+  child.on("close", code => {
+    console.log(`[processor:${jobId}] exited with code ${code}`);
+    updateStatus(jobId, code === 0);
+  });
 }
 
 
