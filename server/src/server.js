@@ -1,6 +1,5 @@
-import express from 'express';
-import apiRouter from './routes/routes.js';
-
+import express from "express";
+import apiRouter from "./routes/routes.js";
 
 const app = express();
 
@@ -10,6 +9,6 @@ app.use(express.json());
 //routes...
 app.use("/", apiRouter);
 
-const PORT = 3000;
+const PORT = 3001;
 
 app.listen(PORT, console.log(`Server started on http://localhost:${PORT}`));
