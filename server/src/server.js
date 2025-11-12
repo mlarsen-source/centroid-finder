@@ -9,6 +9,6 @@ app.use(express.json());
 //routes...
 app.use("/", apiRouter);
 
-const PORT = 3001;
+const PORT = 3000;
 
 app.listen(PORT, console.log(`Server started on http://localhost:${PORT}`));
