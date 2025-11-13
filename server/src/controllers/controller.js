@@ -16,6 +16,15 @@ export const getAllVideos = async (req, res) => {
   }
 };
 
+export const getAllResults = async (req, res) => {
+  try {
+    const results = await fsP.readdir(process.env.RESULTS_DIR);
+    res.status(200).json(results);
+  } catch {
+    res.status(500).json({ error: "Error reading results directory" });
+  }
+};
+
 export const getThumbnail = async (req, res) => {
   ffmpeg.setFfmpegPath(ffmpegInstaller.path);
   const { fileName } = req.params;
