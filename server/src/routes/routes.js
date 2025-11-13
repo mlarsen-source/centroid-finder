@@ -5,6 +5,7 @@ import {
   getStatus,
   getThumbnail,
   startProcessVideo,
+  getCsv
 } from "./../controllers/controller.js";
 
 const router = Router();
