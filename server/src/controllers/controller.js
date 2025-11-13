@@ -1,11 +1,11 @@
-import { createJob, checkJob, updateStatus } from "./../repos/repos.js";
-import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
-import path from "path";
+import { spawn } from "child_process";
+import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 import fsP from "fs/promises";
+import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { spawn } from "child_process";
+import { checkJob, createJob, updateStatus } from "./../repos/repos.js";
 
 export const getAllVideos = async (req, res) => {
   try {
@@ -36,13 +36,13 @@ export const getThumbnail = async (req, res) => {
       ffmpeg(videoPath)
         .on("end", () => {
           res.status(200).sendFile(path.resolve(tempImage), (err) => {
-            fs.unlink(tempImage, () => {}); 
+            fs.unlink(tempImage, () => {});
           });
           resolve();
         })
         .on("error", (err) => {
           console.error("FFmpeg error:", err);
-          reject(err); 
+          reject(err);
         })
         .screenshots({
           timestamps: [0],
@@ -55,13 +55,14 @@ export const getThumbnail = async (req, res) => {
   }
 };
 
-
 export const startProcessVideo = async (req, res) => {
   const { fileName } = req.params;
   const { targetColor, threshold } = req.query;
   try {
     if (!fileName || !targetColor || !threshold) {
-      res.status(400).json({ error: "Missing targetColor or threshold query parameter." });
+      res
+        .status(400)
+        .json({ error: "Missing targetColor or threshold query parameter." });
       return;
     }
 
@@ -69,13 +70,12 @@ export const startProcessVideo = async (req, res) => {
     const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
     const videoPath = `${process.env.VIDEOS_DIR}/${fileName}`;
 
-    console.log('Creating Job');
+    console.log("Creating Job");
     createJob(jobId, fileName, outputPath);
 
     const jarPath = path.resolve(process.env.JAR_PATH);
 
-    
-    console.log('running processor');
+    console.log("running processor");
     runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId);
 
     res.status(200).json({ jobId });
@@ -84,48 +84,62 @@ export const startProcessVideo = async (req, res) => {
   }
 };
 
-export function runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId) {
+export function runProcessor(
+  jarPath,
+  videoPath,
+  outputPath,
+  targetColor,
+  threshold,
+  jobId
+) {
   const args = ["-jar", jarPath, videoPath, outputPath, targetColor, threshold];
-  console.log('spawning:', 'java', ...args);
+  console.log("spawning:", "java", ...args);
 
   const child = spawn("java", args, {
     shell: false,
     stdio: ["ignore", "pipe", "pipe"],
-    detached: true
+    detached: true,
   });
 
-  child.unref(); 
+  child.unref();
 
-  console.log('child spawned changed');
+  console.log("child spawned changed");
 
   // capture normal runtime logs (stdout + stderr) with helpful prefixes
-  child.on('spawn', () => console.log('child started pid:', child.pid));
+  child.on("spawn", () => console.log("child started pid:", child.pid));
 
   if (child.stdout) {
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', data => process.stdout.write(`[processor:${jobId}] ${data}`));
-    child.stdout.on('end', () => console.log(`[processor:${jobId}] stdout ended`));
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (data) =>
+      process.stdout.write(`[processor:${jobId}] ${data}`)
+    );
+    child.stdout.on("end", () =>
+      console.log(`[processor:${jobId}] stdout ended`)
+    );
   }
 
   if (child.stderr) {
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', data => process.stderr.write(`[processor:${jobId}][err] ${data}`));
-    child.stderr.on('end', () => console.log(`[processor:${jobId}] stderr ended`));
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (data) =>
+      process.stderr.write(`[processor:${jobId}][err] ${data}`)
+    );
+    child.stderr.on("end", () =>
+      console.log(`[processor:${jobId}] stderr ended`)
+    );
   }
 
   // Handle startup failures (JAR not found)
   child.on("error", (err) => {
     console.error("Failed to start JAR process:", err);
-    updateStatus(jobId, false); 
+    updateStatus(jobId, false);
   });
 
   // Handle proper process exits (normal or crash)
-  child.on("close", code => {
+  child.on("close", (code) => {
     console.log(`[processor:${jobId}] exited with code ${code}`);
     updateStatus(jobId, code === 0);
   });
 }
-
 
 export const getStatus = async (req, res) => {
   try {
@@ -137,18 +151,43 @@ export const getStatus = async (req, res) => {
     if (!allowed.includes(status))
       return res.status(404).json({ error: "Job ID not found" });
 
-    if (status === "processing") return res.status(200).json({ status: "processing" });
+    if (status === "processing")
+      return res.status(200).json({ status: "processing" });
 
     if (status === "done") return res.status(200).json({ status, outputPath });
 
     if (status === "error")
-      return res
-        .status(200)
-        .json({
-          status,
-          error: "Error processing video: Unexpected ffmpeg error",
-        });
+      return res.status(200).json({
+        status,
+        error: "Error processing video: Unexpected ffmpeg error",
+      });
   } catch {
     res.status(500).json({ error: "Error fetching job status" });
   }
+};
+
+export const getCsv = async (req, res) => {
+  const { fileName } = req.params;
+  const csvPath = path.join(process.env.RESULTS_DIR, fileName);
+
+  // Ensure the file exists before trying to stream it
+  if (!fs.existsSync(csvPath)) {
+    console.error(`File not found at: ${csvPath}`);
+    return res.status(404).send("CSV file not found.");
+  }
+
+  // Set headers to prompt the browser to download the file
+  res.set({
+    "Content-Type": "text/csv",
+    "Content-Disposition": `attachment; filename="${fileName}"`,
+  });
+
+  // Create a readable stream from the file and pipe it directly to the response
+  fs.createReadStream(csvPath)
+    .pipe(res) // Pipe the file stream to the response stream
+    .on("error", (err) => {
+      console.error("Stream error:", err);
+      // Handle potential errors during streaming
+      res.status(500).send("Error streaming the file.");
+    });
 };
