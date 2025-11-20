@@ -1,0 +1,193 @@
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
+import { spawn } from "child_process";
+import ffmpeg from "fluent-ffmpeg";
+import fs from "fs";
+import fsP from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { checkJob, createJob, updateStatus } from "./../repos/repos.js";
+
+export const getAllVideos = async (req, res) => {
+  try {
+    const videos = await fsP.readdir(process.env.VIDEOS_DIR);
+    res.status(200).json(videos);
+  } catch {
+    res.status(500).json({ error: "Error reading video directory" });
+  }
+};
+
+export const getAllResults = async (req, res) => {
+  try {
+    const results = await fsP.readdir(process.env.RESULTS_DIR);
+    res.status(200).json(results);
+  } catch {
+    res.status(500).json({ error: "Error reading results directory" });
+  }
+};
+
+export const getThumbnail = async (req, res) => {
+  ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+  const { fileName } = req.params;
+  const videoPath = path.join(process.env.VIDEOS_DIR, fileName);
+  const tempImage = path.join("./public", `${fileName}-thumb.jpg`);
+
+  try {
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoPath)
+        .on("end", () => {
+          res.status(200).sendFile(path.resolve(tempImage), (err) => {
+            fs.unlink(tempImage, () => {});
+          });
+          resolve();
+        })
+        .on("error", (err) => {
+          console.error("FFmpeg error:", err);
+          reject(err);
+        })
+        .screenshots({
+          timestamps: [0],
+          filename: path.basename(tempImage),
+          folder: "./public",
+        });
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error generating thumbnail" });
+  }
+};
+
+export const startProcessVideo = async (req, res) => {
+  const { fileName } = req.params;
+  const { targetColor, threshold } = req.query;
+  try {
+    if (!fileName || !targetColor || !threshold) {
+      res
+        .status(400)
+        .json({ error: "Missing targetColor or threshold query parameter." });
+      return;
+    }
+
+    const jobId = uuidv4();
+    const outputPath = `${process.env.RESULTS_DIR}/${fileName}.csv`;
+    const videoPath = `${process.env.VIDEOS_DIR}/${fileName}`;
+
+    console.log("Creating Job");
+    createJob(jobId, fileName, outputPath);
+
+    const jarPath = path.resolve(process.env.JAR_PATH);
+
+    console.log("running processor");
+    runProcessor(jarPath, videoPath, outputPath, targetColor, threshold, jobId);
+
+    res.status(200).json({ jobId });
+  } catch {
+    res.status(500).json({ error: "Error starting job" });
+  }
+};
+
+export function runProcessor(
+  jarPath,
+  videoPath,
+  outputPath,
+  targetColor,
+  threshold,
+  jobId
+) {
+  const args = ["-jar", jarPath, videoPath, outputPath, targetColor, threshold];
+  console.log("spawning:", "java", ...args);
+
+  const child = spawn("java", args, {
+    shell: false,
+    stdio: ["ignore", "pipe", "pipe"],
+    detached: true,
+  });
+
+  child.unref();
+
+  console.log("child spawned changed");
+
+  // capture normal runtime logs (stdout + stderr) with helpful prefixes
+  child.on("spawn", () => console.log("child started pid:", child.pid));
+
+  if (child.stdout) {
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (data) =>
+      process.stdout.write(`[processor:${jobId}] ${data}`)
+    );
+    child.stdout.on("end", () =>
+      console.log(`[processor:${jobId}] stdout ended`)
+    );
+  }
+
+  if (child.stderr) {
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (data) =>
+      process.stderr.write(`[processor:${jobId}][err] ${data}`)
+    );
+    child.stderr.on("end", () =>
+      console.log(`[processor:${jobId}] stderr ended`)
+    );
+  }
+
+  // Handle startup failures (JAR not found)
+  child.on("error", (err) => {
+    console.error("Failed to start JAR process:", err);
+    updateStatus(jobId, false);
+  });
+
+  // Handle proper process exits (normal or crash)
+  child.on("close", (code) => {
+    console.log(`[processor:${jobId}] exited with code ${code}`);
+    updateStatus(jobId, code === 0);
+  });
+}
+
+export const getStatus = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const { status, outputPath } = await checkJob(jobId);
+    const allowed = ["error", "processing", "done"];
+
+    if (!allowed.includes(status))
+      return res.status(404).json({ error: "Job ID not found" });
+
+    if (status === "processing")
+      return res.status(200).json({ status: "processing" });
+
+    if (status === "done") return res.status(200).json({ status, outputPath });
+
+    if (status === "error")
+      return res.status(200).json({
+        status,
+        error: "Error processing video: Unexpected ffmpeg error",
+      });
+  } catch {
+    res.status(500).json({ error: "Error fetching job status" });
+  }
+};
+
+export const getCsv = async (req, res) => {
+  const { fileName } = req.params;
+  const csvPath = path.join(process.env.RESULTS_DIR, fileName);
+
+  // Ensure the file exists before trying to stream it
+  if (!fs.existsSync(csvPath)) {
+    console.error(`File not found at: ${csvPath}`);
+    return res.status(404).send("CSV file not found.");
+  }
+
+  // Set headers to prompt the browser to download the file
+  res.set({
+    "Content-Type": "text/csv",
+    "Content-Disposition": `attachment; filename="${fileName}"`,
+  });
+
+  // Create a readable stream from the file and pipe it directly to the response
+  fs.createReadStream(csvPath)
+    .pipe(res) // Pipe the file stream to the response stream
+    .on("error", (err) => {
+      console.error("Stream error:", err);
+      // Handle potential errors during streaming
+      res.status(500).send("Error streaming the file.");
+    });
+};
