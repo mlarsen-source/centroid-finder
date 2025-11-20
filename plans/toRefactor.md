@@ -17,7 +17,7 @@
 ## Writing Documentation
 - add documentation for server
 
-- clean up processor
+- clean up processor and server
   - delete imageSummaryApp
   - remove dead code from DFSGroupFinder (one line)
   - delete sampleInput / SampleOutput directories /   files
