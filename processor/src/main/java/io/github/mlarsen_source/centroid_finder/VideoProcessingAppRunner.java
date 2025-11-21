@@ -3,6 +3,7 @@ package io.github.mlarsen_source.centroid_finder;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
 import org.jcodec.api.JCodecException;
 
 /**
@@ -28,7 +29,7 @@ public class VideoProcessingAppRunner {
         ImageBinarizer binarizer = new DistanceImageBinarizer(distanceFinder, targetColor, threshold);
         ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new DfsBinaryGroupFinder());
 
-        VideoProcessor videoProcessor = new VideoProcessor(new File(videoPath));
+        VideoProcessor videoProcessor = new Mp4VideoProcessor(new File(videoPath));
         VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, groupFinder);
 
         List<TimedCoordinate> timedCoordinatesList = videoGroupFinder.getTimeGroups();

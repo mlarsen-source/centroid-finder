@@ -1,62 +1,22 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
-import org.jcodec.common.DemuxerTrack;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
 
 /**
- * Handles video processing operations such as reading frames,
+ * Interface for video processing operations such as reading frames,
  * determining the frame rate (FPS), and converting frame numbers to timestamps.
- *
  */
-public class VideoProcessor {
-
-    /** The video file to be processed. */
-    private final File video;
-
-    private final FrameData frameData;
-
-    /**
-     * Constructs a VideoProcessor for the specified video file.
-     *
-     * @param video the video file to process
-     * @throws IOException if the file cannot be read or metadata cannot be extracted
-     * @throws JCodecException if an error occurs while parsing the video
-     */
-    public VideoProcessor(File video) throws IOException, JCodecException {
-        this.video = video;
-        FrameData frameData = computeFrameData();
-        this.frameData = frameData;
-    }
-
-    /**
-     * Computes the video's frame rate (FPS) using JCodec.
-     *
-     * @return the computed frames-per-second (FPS) value
-     * @throws IOException if the video file cannot be accessed
-     */
-    private FrameData computeFrameData() throws IOException {
-        MP4Demuxer demuxer = MP4Demuxer.createMP4Demuxer(NIOUtils.readableChannel(video));
-        DemuxerTrack videoTrack = demuxer.getVideoTrack();
-        int totalFrames = videoTrack.getMeta().getTotalFrames();
-        double totalDuration = videoTrack.getMeta().getTotalDuration();
-        double fps = totalFrames / totalDuration;
-        return new FrameData(totalFrames, fps);
-    }
+public interface VideoProcessor {
 
     /**
      * Returns the video's frame rate (FPS).
      *
      * @return the video's frames-per-second (FPS)
      */
-     public double getFps() {
-        return frameData.fps();
-    }
+    double getFps();
 
     /**
      * Converts a frame index to a timestamp in seconds.
@@ -67,9 +27,7 @@ public class VideoProcessor {
      * @param frameNumber the zero-based index of the frame
      * @return the time in seconds from the start of the video corresponding to that frame
      */
-    public double getTime(int frameNumber) {
-        return frameNumber / frameData.fps();
-    }
+    double getTime(int frameNumber);
 
     /**
      * Returns a new FrameGrab object that can iterate through the frames of the video.
@@ -82,12 +40,12 @@ public class VideoProcessor {
      * @throws IOException if the video file cannot be read
      * @throws JCodecException if an error occurs while initializing frame extraction
      */
-    public FrameGrab getFrames() throws IOException, JCodecException {
-        return FrameGrab.createFrameGrab(NIOUtils.readableChannel(video));
-    }
+    FrameGrab getFrames() throws IOException, JCodecException;
 
-    public int getTotalFrames() {
-        return frameData.totalFrames();
-    }
+    /**
+     * Returns the total number of frames in the video.
+     *
+     * @return the total frame count
+     */
+    int getTotalFrames();
 }
-
