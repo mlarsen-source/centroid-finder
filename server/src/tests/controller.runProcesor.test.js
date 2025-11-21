@@ -27,14 +27,19 @@ import { EventEmitter } from 'events';  // For creating mock child process
  */
 function createMockChildProcess() {
   const mockProcess = new EventEmitter();
-  
-  // Child processes have stdout and stderr streams (also EventEmitters)
-  mockProcess.stdout = new EventEmitter();
-  mockProcess.stderr = new EventEmitter();
-  
+
+  const createStream = () => {
+    const stream = new EventEmitter();
+    stream.setEncoding = sinon.stub().returns(stream);
+    return stream;
+  };
+
+  mockProcess.stdout = createStream();
+  mockProcess.stderr = createStream();
+
   // unref() is called to allow the parent process to exit independently
   mockProcess.unref = sinon.stub();
-  
+
   return mockProcess;
 }
 
@@ -229,8 +234,8 @@ describe('runProcessor Function', () => {
      * Uses sinon.spy on console.log to verify logging behavior.
      */
     it('should log stdout data from the Java process', (done) => {
-      // ARRANGE: Spy on console.log
-      const consoleLogSpy = sinon.spy(console, 'log');
+      // ARRANGE: Spy on process stdout writes (runProcessor writes there)
+      const stdoutSpy = sinon.spy(process.stdout, 'write');
       
       // ACT: Start the processor
       runProcessor(
@@ -248,9 +253,11 @@ describe('runProcessor Function', () => {
 
       // ASSERT
       setTimeout(() => {
-        expect(consoleLogSpy.called).to.be.true;
-        expect(consoleLogSpy.calledWith('Processing frame 100...')).to.be.true;
-        consoleLogSpy.restore();
+        expect(stdoutSpy.called).to.be.true;
+        expect(
+          stdoutSpy.calledWithMatch('[processor:test-job-123] Processing frame 100...')
+        ).to.be.true;
+        stdoutSpy.restore();
         done();
       }, 10);
     });
@@ -369,7 +376,7 @@ describe('runProcessor Function', () => {
      */
     it('should handle multiple stdout data events', (done) => {
       // ARRANGE
-      const consoleLogSpy = sinon.spy(console, 'log');
+      const stdoutSpy = sinon.spy(process.stdout, 'write');
       
       // ACT
       runProcessor(
@@ -388,16 +395,13 @@ describe('runProcessor Function', () => {
 
       // ASSERT
       setTimeout(() => {
-        // Verify that at least 3 logs occurred (might be more due to "child spawned")
-        expect(consoleLogSpy.callCount).to.be.at.least(3);
+        expect(stdoutSpy.callCount).to.be.at.least(3);
+        const writes = stdoutSpy.getCalls().map(call => call.args[0]);
+        expect(writes.some(msg => msg.includes('Line 1'))).to.be.true;
+        expect(writes.some(msg => msg.includes('Line 2'))).to.be.true;
+        expect(writes.some(msg => msg.includes('Line 3'))).to.be.true;
         
-        // Verify the specific stdout lines were logged
-        const loggedMessages = consoleLogSpy.getCalls().map(call => call.args[0]);
-        expect(loggedMessages).to.include('Line 1');
-        expect(loggedMessages).to.include('Line 2');
-        expect(loggedMessages).to.include('Line 3');
-        
-        consoleLogSpy.restore();
+        stdoutSpy.restore();
         done();
       }, 10);
     });
