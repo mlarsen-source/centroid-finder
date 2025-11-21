@@ -22,11 +22,6 @@ public class BinarizingImageGroupFinderTest {
       if (toThrow != null) throw toThrow;
       return toReturn;
     }
-
-    @Override
-    public BufferedImage toBufferedImage(int[][] image) {
-      throw new UnsupportedOperationException("not used in these tests");
-    }
   }
 
   private static class MockBinaryGroupFinder implements BinaryGroupFinder {
