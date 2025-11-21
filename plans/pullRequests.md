@@ -1,20 +1,18 @@
 ## Writing Documentation
 
 - clean up unused code and files
-
   - https://github.com/mlarsen-source/centroid-finder/pull/1
 
 - add documentation for server
   - https://github.com/mlarsen-source/centroid-finder/pull/4
 
+- Discovered and removed unused method and tests
+  - https://github.com/mlarsen-source/centroid-finder/pull/6
+
 ## Improving Error Handling
 
 - improve exception handling video processing app
-
   - https://github.com/mlarsen-source/centroid-finder/pull/2
-
-- refactor validation on find connected groups dfs binary groupfinder / toBufffered Distance image binirizer. improve validation / error handling. Potentially add validator class
-  -
 
 ## Adding Tests
 

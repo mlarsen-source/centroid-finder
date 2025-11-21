@@ -101,63 +101,6 @@ public class DistanceImageBinarizerTest {
       }
     }
   }
-
-  // ---------- toBufferedImage tests ----------
-
-  @Test
-  void testToBufferedImageThrowsExceptionWhenImageIsNull() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    assertThrows(NullPointerException.class, () -> {
-      b.toBufferedImage(null);
-    });
-  }
-
-  @Test
-  void testToBufferedImageThrowsExceptionWhenImageIsEmpty() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    int[][] empty = new int[0][0];
-    assertThrows(IllegalArgumentException.class, () -> {
-      b.toBufferedImage(empty);
-    });
-  }
-
-  @Test
-  void testToBufferedImageThrowsExceptionWhenSubarrayIsNull() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    int[][] invalid = new int[][] { null };
-    assertThrows(NullPointerException.class, () -> {
-      b.toBufferedImage(invalid);
-    });
-  }
-
-  @Test
-  void testToBufferedImageThrowsExceptionWhenValuesNotBinary() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    int[][] invalid = new int[][] { { -1, 0, 2 } };
-    assertThrows(IllegalArgumentException.class, () -> {
-      b.toBufferedImage(invalid);
-    });
-  }
-
-  @Test
-  void testToBufferedImageProducesCorrectDimensionsAndColors() {
-    ImageBinarizer b = new DistanceImageBinarizer(new EuclideanColorDistance(), 0x000000, 1);
-    int[][] binary = new int[][] {
-      {1, 0, 1},
-      {0, 1, 0}
-    };
-    BufferedImage img = b.toBufferedImage(binary);
-
-    // Expect 3x2 (width x height)
-    assertNotNull(img);
-    assertEquals(3, img.getWidth());
-    assertEquals(2, img.getHeight());
-
-    // Check a few pixels for exact RGB values
-    assertEquals(0x00FFFFFF, img.getRGB(0, 0) & 0x00FFFFFF); // white
-    assertEquals(0x00000000, img.getRGB(1, 0) & 0x00FFFFFF); // black
-    assertEquals(0x00000000, img.getRGB(2, 1) & 0x00FFFFFF); // black
-  }
 }
 
 

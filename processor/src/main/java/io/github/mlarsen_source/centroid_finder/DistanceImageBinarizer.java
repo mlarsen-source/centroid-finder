@@ -60,33 +60,4 @@ public class DistanceImageBinarizer implements ImageBinarizer {
         }
         return image2;
     }
-
-    /**
-     * Converts a binary 2D array into a BufferedImage.
-     * Each value should be 0 (black) or 1 (white).
-     * Black pixels are encoded as 0x000000 and white pixels as 0xFFFFFF.
-     *
-     * @param image a 2D array of 0s and 1s representing the binary image
-     * @return a BufferedImage where black and white pixels are represented with standard RGB hex values
-     */
-    @Override
-    public BufferedImage toBufferedImage(int[][] image) {
-        if(image == null) throw new NullPointerException("array cannot be null");
-        if (image.length == 0 || image[0].length == 0) throw new IllegalArgumentException("array cannot be empty");
-        for (int[] subarray: image) {
-            if (subarray == null) throw new NullPointerException("subarray cannot be null");
-            for (int num : subarray) {
-                if (num != 0 && num != 1) throw new IllegalArgumentException("array can only contain values of 1 or 0");
-            }
-        }
-        BufferedImage image2 = new BufferedImage(image[0].length,image.length, BufferedImage.TYPE_INT_RGB);
-        for (int row = 0; row < image.length; row++) {
-            for (int col = 0; col < image[0].length; col++) {
-                int value = image[row][col];
-                if(value == 1) image2.setRGB(col, row, 0xFFFFFF);
-                else image2.setRGB(col, row, 0x000000);
-            }
-        }
-        return image2;
-    }
 }

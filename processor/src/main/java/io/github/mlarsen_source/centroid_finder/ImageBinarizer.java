@@ -16,16 +16,4 @@ public interface ImageBinarizer {
      * @return a 2D array of integers where 1 represents white and 0 represents black
      */
     public int[][] toBinaryArray(BufferedImage image);
-
-    /**
-     * Converts a binary 2D array into a BufferedImage.
-     * Each element in the array should be either 0 (black) or 1 (white).
-     * 
-     * Black pixels should be represented as x000000 and white pixels should be
-     * represented as xFFFFFF.
-     *
-     * @param image a 2D binary array where 1 represents white and 0 represents black
-     * @return a BufferedImage representation of the binary array
-     */
-    public BufferedImage toBufferedImage(int[][] image);
 }
