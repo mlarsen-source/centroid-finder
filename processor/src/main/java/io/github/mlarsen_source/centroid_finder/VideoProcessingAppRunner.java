@@ -30,7 +30,7 @@ public class VideoProcessingAppRunner {
         ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new DfsBinaryGroupFinder());
 
         VideoProcessor videoProcessor = new Mp4VideoProcessor(new File(videoPath));
-        VideoGroupFinder videoGroupFinder = new VideoGroupFinder(videoProcessor, groupFinder);
+        VideoGroupFinder videoGroupFinder = new Mp4VideoGroupFinder(videoProcessor, groupFinder);
 
         List<TimedCoordinate> timedCoordinatesList = videoGroupFinder.getTimeGroups();
 
