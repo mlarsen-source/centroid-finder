@@ -1,6 +1,8 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -17,7 +19,7 @@ import org.jcodec.api.awt.AWTSequenceEncoder;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for {@link VideoGroupFinder} using a programmatically generated 5-second MP4.
+ * Tests for {@link Mp4VideoGroupFinder} using a programmatically generated 5-second MP4.
  */
 public class VideoGroupFinderTest {
 
@@ -45,7 +47,7 @@ public class VideoGroupFinderTest {
   /**
    * Subclass of VideoProcessor that throws from getFrames (constructor still validates the file and FPS).
    */
-  private static class ThrowingVideoProcessor extends VideoProcessor {
+  private static class ThrowingVideoProcessor extends Mp4VideoProcessor {
     public ThrowingVideoProcessor(File video) throws IOException, JCodecException {
       super(video);
     }
@@ -89,14 +91,14 @@ public class VideoGroupFinderTest {
   @Test
   void getTimeGroups_returnsEmpty_whenNoFramesHaveGroups() throws Exception {
     File video = createTestVideo(1, 5); // 5 seconds at 1 fps => 5 frames
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     List<List<Group>> scripted = new ArrayList<>();
     // 5 empty frames
     for (int i = 0; i < 5; i++) scripted.add(Collections.emptyList());
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
 
-    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
+    VideoGroupFinder finder = new Mp4VideoGroupFinder(processor, groupFinder);
     List<TimedCoordinate> actual = finder.getTimeGroups();
 
     assertNotNull(actual);
@@ -107,7 +109,7 @@ public class VideoGroupFinderTest {
   @Test
   void getTimeGroups_skipsEmptyFrames_andUsesCorrectTimestamp() throws Exception {
     File video = createTestVideo(1, 5); // fps=1 for simple expected timestamps
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     List<List<Group>> scripted = new ArrayList<>();
     // frame 1: empty
@@ -120,7 +122,7 @@ public class VideoGroupFinderTest {
     scripted.add(Collections.emptyList());
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
-    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
+    VideoGroupFinder finder = new Mp4VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(1, actual.size());
@@ -135,7 +137,7 @@ public class VideoGroupFinderTest {
   @Test
   void getTimeGroups_emitsOnePerNonEmptyFrame_inOrder() throws Exception {
     File video = createTestVideo(2, 5); // fps=2 => 10 frames
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     List<List<Group>> scripted = new ArrayList<>();
     // Frame 1: group
@@ -148,7 +150,7 @@ public class VideoGroupFinderTest {
     for (int i = 0; i < 7; i++) scripted.add(Collections.emptyList());
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(scripted);
-    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
+    VideoGroupFinder finder = new Mp4VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(2, actual.size());
@@ -167,7 +169,7 @@ public class VideoGroupFinderTest {
   @Test
   void getTimeGroups_usesFirstGroupAsLargest_byContract() throws Exception {
     File video = createTestVideo(1, 1); // single frame video
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     List<Group> groups = new ArrayList<>();
     // By contract ImageGroupFinder returns DESC sorted; ensure first is the largest
@@ -177,7 +179,7 @@ public class VideoGroupFinderTest {
     groups.add(smaller);
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(Collections.singletonList(groups));
-    VideoGroupFinder finder = new VideoGroupFinder(processor, groupFinder);
+    VideoGroupFinder finder = new Mp4VideoGroupFinder(processor, groupFinder);
 
     List<TimedCoordinate> actual = finder.getTimeGroups();
     assertEquals(1, actual.size());
@@ -192,7 +194,7 @@ public class VideoGroupFinderTest {
     VideoProcessor throwing = new ThrowingVideoProcessor(video);
 
     ScriptedImageGroupFinder groupFinder = new ScriptedImageGroupFinder(Collections.emptyList());
-    VideoGroupFinder finder = new VideoGroupFinder(throwing, groupFinder);
+    VideoGroupFinder finder = new Mp4VideoGroupFinder(throwing, groupFinder);
 
     assertThrows(IOException.class, finder::getTimeGroups);
   }

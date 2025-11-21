@@ -5,7 +5,7 @@ public class VideoProcessingApp {
     public static void main(String[] args) {
 
         try {
-            CommandLineParser parser = new CommandLineParser(args);
+            ArgumentParser parser = new CommandLineParser(args);
 
             String videoPath = parser.getVideoPath();
             String outputPath = parser.getOutputPath();

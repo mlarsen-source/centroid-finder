@@ -1,15 +1,15 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.time.LocalTime;
+import java.io.PrintWriter;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
  * Writes the generated list of TimedCoordinate records to a CSV file.
  */
-public class CsvWriter {
+public class CsvWriter implements DataWriter{
 
   /**
    * Writes a list of TimedCoordinate objects to a CSV file.

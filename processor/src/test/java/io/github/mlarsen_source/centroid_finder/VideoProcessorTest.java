@@ -1,6 +1,7 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -42,7 +43,7 @@ public class VideoProcessorTest {
     File missing = new File("this-file-should-not-exist-12345.mp4");
     assertThrows(IOException.class, () -> {
       // JCodec demuxer access during construction should fail
-      new VideoProcessor(missing);
+      new Mp4VideoProcessor(missing);
     });
   }
 
@@ -50,7 +51,7 @@ public class VideoProcessorTest {
   void getFps_matchesEncodedFps() throws Exception {
     int fps = 5;
     File video = createTestVideo(fps, 5);
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
     assertEquals(fps, Math.round(processor.getFps()));
   }
 
@@ -58,7 +59,7 @@ public class VideoProcessorTest {
   void getTime_convertsFrameIndexToSeconds() throws Exception {
     int fps = 4;
     File video = createTestVideo(fps, 5);
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     // frameNumber / fps
     assertEquals(0.0, processor.getTime(0), 1e-9);
@@ -73,7 +74,7 @@ public class VideoProcessorTest {
     int seconds = 5;
     int expectedFrames = fps * seconds;
     File video = createTestVideo(fps, seconds);
-    VideoProcessor processor = new VideoProcessor(video);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
 
     FrameGrab grab = processor.getFrames();
     int framesSeen = 0;
