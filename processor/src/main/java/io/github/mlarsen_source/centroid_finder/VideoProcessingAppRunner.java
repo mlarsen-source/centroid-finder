@@ -34,6 +34,7 @@ public class VideoProcessingAppRunner {
 
         List<TimedCoordinate> timedCoordinatesList = videoGroupFinder.getTimeGroups();
 
-        new CsvWriter().writeToCsv(outputPath, timedCoordinatesList);
+        DataWriter writer = new CsvWriter();
+        writer.writeToCsv(outputPath, timedCoordinatesList);
     }
 }

@@ -1,13 +1,17 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
-import java.time.LocalTime;
-import java.util.*;
-import org.junit.jupiter.api.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.AbstractList;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 
@@ -25,7 +29,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_createsFileSuccessfully() throws IOException {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         Path output = tempDir.resolve("output.csv");
 
         assertDoesNotThrow(() -> writer.writeToCsv(output.toString(), sampleData()));
@@ -36,7 +40,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_overwritesExistingFile() throws IOException {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         Path output = tempDir.resolve("overwrite.csv");
 
         Files.writeString(output, "old data");
@@ -49,7 +53,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_handlesInvalidPath_gracefullyWithoutCrash() {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         String invalidPath = "Z:/this/path/should/not/exist/output.csv";
         assertDoesNotThrow(() -> writer.writeToCsv(invalidPath, sampleData()),
             "CsvWriter should log error but not throw for invalid path");
@@ -57,7 +61,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_handlesNullOrEmptyPathGracefully() {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         List<TimedCoordinate> data = sampleData();
 
         assertDoesNotThrow(() -> writer.writeToCsv(null, data),
@@ -68,7 +72,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_writesEmptyListGracefully() throws IOException {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         Path output = tempDir.resolve("empty.csv");
 
         assertDoesNotThrow(() -> writer.writeToCsv(output.toString(), Collections.emptyList()));
@@ -79,7 +83,7 @@ public class CsvWriterTest {
 
     @Test
     void writeToCsv_createsFileEvenIfWriteFailsMidway() throws IOException {
-        CsvWriter writer = new CsvWriter();
+        DataWriter writer = new CsvWriter();
         Path output = tempDir.resolve("partial.csv");
 
         // List that throws RuntimeException when accessed
