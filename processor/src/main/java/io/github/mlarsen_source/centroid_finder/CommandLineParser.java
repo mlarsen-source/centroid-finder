@@ -8,7 +8,7 @@ import java.io.File;
  * This class checks the input video file, output file path, hex color value,
  * and threshold value to ensure all arguments are valid before the program runs.
  */
-public class CommandLineParser {
+public class CommandLineParser implements ArgumentParser {
 
     /** The path to the input video file. */
     private final String videoPath;

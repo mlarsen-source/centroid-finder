@@ -1,9 +1,13 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -108,7 +112,7 @@ public class CommandLineParserTest {
   void hexColor_acceptsValidUppercase() throws IOException {
     File video = createTempMp4();
     String[] args = baseArgs(video, createValidCsvPath(), "FFA500", "25");
-    CommandLineParser parser = new CommandLineParser(args);
+    ArgumentParser parser = new CommandLineParser(args);
     assertEquals(0xFFA500, parser.getTargetColor());
   }
 
@@ -116,7 +120,7 @@ public class CommandLineParserTest {
   void hexColor_acceptsValidLowercase() throws IOException {
     File video = createTempMp4();
     String[] args = baseArgs(video, createValidCsvPath(), "ffa500", "25");
-    CommandLineParser parser = new CommandLineParser(args);
+    ArgumentParser parser = new CommandLineParser(args);
     assertEquals(0xFFA500, parser.getTargetColor());
 }
 
@@ -145,7 +149,7 @@ public class CommandLineParserTest {
   void threshold_acceptsZero() throws IOException {
     File video = createTempMp4();
     String[] args = baseArgs(video, createValidCsvPath(), "FFA500", "0");
-    CommandLineParser parser = new CommandLineParser(args);
+    ArgumentParser parser = new CommandLineParser(args);
     assertEquals(0, parser.getThreshold());
 }
 
@@ -153,7 +157,7 @@ public class CommandLineParserTest {
   void threshold_acceptsPositiveInteger() throws IOException {
     File video = createTempMp4();
     String[] args = baseArgs(video, createValidCsvPath(), "FFA500", "75");
-    CommandLineParser parser = new CommandLineParser(args);
+    ArgumentParser parser = new CommandLineParser(args);
     assertEquals(75, parser.getThreshold());
 }
 

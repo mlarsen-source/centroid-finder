@@ -1,9 +1,17 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
-import java.nio.file.*;
-import static org.junit.jupiter.api.Assertions.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class VideoProcessingAppTest {
@@ -62,7 +70,7 @@ public class VideoProcessingAppTest {
         };
 
         assertDoesNotThrow(() -> {
-            CommandLineParser parser = new CommandLineParser(args);
+            ArgumentParser parser = new CommandLineParser(args);
             assertEquals(VALID_VIDEO.toString(), parser.getVideoPath());
             assertEquals(VALID_OUTPUT.toString(), parser.getOutputPath());
             assertEquals(0xFFA500, parser.getTargetColor());
