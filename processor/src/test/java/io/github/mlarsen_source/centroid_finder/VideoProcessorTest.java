@@ -86,6 +86,17 @@ public class VideoProcessorTest {
     }
     assertEquals(expectedFrames, framesSeen);
   }
+
+  @Test
+  void getTotalFrames_matchesEncodedFrameCount() throws Exception {
+    int fps = 4;
+    int seconds = 3;
+    int expectedFrames = fps * seconds;
+    File video = createTestVideo(fps, seconds);
+    VideoProcessor processor = new Mp4VideoProcessor(video);
+
+    assertEquals(expectedFrames, processor.getTotalFrames());
+  }
 }
 
 
