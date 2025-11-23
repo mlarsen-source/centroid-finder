@@ -154,9 +154,86 @@ A video analysis tool for tracking salamander movement in research videos. The s
 
 ## Prerequisites
 
+### Docker Deployment
+
+- **Docker Engine installed**
+
+### Local Development Environment
+
+- **Java**: JDK 24+
+- **Maven**: 4.0.0+
+- **Node.js**: 24.11.1+
+- **NPM**:11.6.2+
+
 ---
 
 ## Quick Start
+
+### Docker
+
+1.  **Build the image**
+
+    ```
+    docker build . -t centroid-finder
+    ```
+
+2.  **Run the container**
+
+    ```
+    docker run -p 3000:3000 -v "/path/to/local/videos:/videos" -v "/path/to/local/results:/results"
+    centroid-finder
+    ```
+
+### Local Development
+
+**Processor (Java)**
+
+1.  **Enter the processor directory**
+
+    ```
+    cd processor
+    ```
+
+2.  **Build the JAR**
+
+    ```
+    mvn clean package
+    ```
+
+3.  **Run the processor manually**
+
+    ```
+    java -jar target/centroid-finder-1.0.0-jar-with-dependencies.jar  sampleInput/salamander_video.mp4  processor/results/output.csv  FFA200  164
+    ```
+
+    **Processor Arguments**
+
+    1. Input video path
+    2. Output CSV path
+    3. Target color
+    4. Threshold
+
+**Server (Node.js)**
+
+1.  **Enter the server directory**
+
+    ```
+    cd server
+    ```
+
+2.  **Install dependencies**
+
+    ```
+    npm install
+    ```
+
+3.  **Start the server**
+
+    ```
+    npm start
+    ```
+
+Server will be available at: **http://localhost:3000**
 
 ---
 
