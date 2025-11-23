@@ -16,7 +16,6 @@ A video analysis tool for tracking salamander movement in research videos. The s
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
 - [API Documentation](#api-documentation)
-- [Usage Examples](#usage-examples)
 - [Project Structure](#project-structure)
 - [Development](#development)
 
@@ -238,6 +237,138 @@ Server will be available at: **http://localhost:3000**
 ---
 
 ## API Documentation
+
+### Endpoints
+
+#### `GET /api/videos`
+
+List all video files available for processing.
+
+**Response:**
+
+```json
+["salamander_video1.mp4", "salamander_video2.mp4", "salamander_video3.mp4"]
+```
+
+---
+
+#### `GET /api/results`
+
+List all processed CSV result files.
+
+**Response:**
+
+```json
+["salamander_video1.csv", "salamander_video2.csv", "salamander_video3.csv"]
+```
+
+---
+
+#### `GET /api/csv/:fileName`
+
+Download a specific CSV result file.
+
+**Parameters:**
+
+- `fileName` (path): Name of the CSV file
+
+**Response:**
+
+- Content-Type: `text/csv`
+- Content-Disposition: `attachment`
+
+**Example:**
+
+```
+http://localhost:3000/api/csv/salamander_video.mp4.csv
+```
+
+---
+
+#### `GET /thumbnail/:fileName`
+
+Generate and retrieve a thumbnail image (first frame) from a video.
+
+**Parameters:**
+
+- `fileName` (path): Name of the video file
+
+**Response:**
+
+- Content-Type: `image/jpeg`
+
+**Example:**
+
+```
+http://localhost:3000/thumbnail/salamander_video.mp4
+```
+
+---
+
+#### `POST /process/:fileName`
+
+Start a video processing job.
+
+**Parameters:**
+
+- `fileName` (path): Name of the video file in `/videos` directory
+
+**Query Parameters:**
+
+- `targetColor` (required): 6-character hex color code (e.g., `FFA200`)
+- `threshold` (required): Integer threshold for color matching (e.g., `164`)
+
+**Response:**
+
+```json
+{
+  "jobId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+**Example:**
+
+```bash
+POST http://localhost:3000/process/salamander_video.mp4?targetColor=FFA200&threshold=164
+```
+
+---
+
+#### `GET /process/:jobId/status`
+
+Check the status of a processing job.
+
+**Parameters:**
+
+- `jobId` (path): UUID returned from the POST /process endpoint
+
+**Response:**
+
+**Processing:**
+
+```json
+{
+  "status": "processing"
+}
+```
+
+**Completed:**
+
+```json
+{
+  "status": "done",
+  "outputPath": "/results/salamander_video.mp4.csv"
+}
+```
+
+**Error:**
+
+```json
+{
+  "status": "error",
+  "error": "Error processing video: Unexpected ffmpeg error"
+}
+```
 
 ---
 
