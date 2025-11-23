@@ -1,5 +1,5 @@
- ## Refactoring Code
- 
+## Refactoring Code
+
 - implement interfaces for videoProcesor, VideoGroup Finder, CsV Writer, cmd line parser
 
 - revise class names to better describe function / behavior
@@ -9,21 +9,21 @@
 - improve/add tests (processor and server)
 
 ## Improving Error Handling
-- refactor validation on find connected groups dfs binary groupfinder / toBufffered Distance image binirizer. improve validation / error handling 
+
+- refactor validation on find connected groups dfs binary groupfinder / toBufffered Distance image binirizer. improve validation / error handling
+
   - validator class
 
 - improve exception handling video processing app
 
 ## Writing Documentation
+
 - add documentation for server
 
 - clean up processor and server
+
   - delete imageSummaryApp
   - remove dead code from DFSGroupFinder (one line)
-  - delete sampleInput / SampleOutput directories /   files
+  - delete sampleInput / SampleOutput directories / files
 
-
-
-
-
-
+- update readme.md file
