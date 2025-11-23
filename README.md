@@ -374,6 +374,84 @@ Check the status of a processing job.
 
 ## Project Structure
 
+```
+centroid-finder/
+|
+├── plans/                     # Documentation and development notes
+|
+├── processor/                 # Java Maven processor
+│   ├── src/
+│   │   ├── main/java/io/github/mlarsen_source/centroid_finder/
+│   │   │   ├── VideoProcessingApp.java              # Main entry point
+│   │   │   ├── VideoProcessingAppRunner.java        # Processing coordinator
+│   │   │   ├── ArgumentParser.java                  # Interface for argument parsing
+│   │   │   ├── CommandLineParser.java               # CLI argument parser/validator
+│   │   │   ├── VideoProcessor.java                  # Interface for video operations
+│   │   │   ├── Mp4VideoProcessor.java               # MP4 frame extraction & FPS calculation
+│   │   │   ├── VideoGroupFinder.java                # Interface for video analysis
+│   │   │   ├── Mp4VideoGroupFinder.java             # Frame-by-frame centroid extraction
+|   |   |   ├── ColorDistanceFinder.java             # Interface for color distance
+│   │   │   ├── EuclideanColorDistance.java          # RGB Euclidean distance calculator
+│   │   │   ├── ImageBinarizer.java                  # Interface for image binarization
+│   │   │   ├── DistanceImageBinarizer.java          # Color distance-based binarization
+│   │   │   ├── ImageGroupFinder.java                # Interface for connected components
+│   │   │   ├── BinarizingImageGroupFinder.java      # Binarize + find groups pipeline
+│   │   │   ├── BinaryGroupFinder.java               # Interface for binary image groups
+│   │   │   ├── BfsBinaryGroupFinder.java            # BFS connected group detection
+│   │   │   ├── DataWriter.java                      # Interface for output writing
+│   │   │   ├── CsvWriter.java                       # CSV file writer
+│   │   │   ├── Coordinate.java                      # Record: (x, y) position
+│   │   │   ├── Group.java                           # Record: pixel group with centroid
+│   │   │   ├── TimedCoordinate.java                 # Record: centroid + timestamp
+│   │   │   └── FrameData.java                       # Record: video metadata
+|   |   |
+│   │   └── test/java/         # JUnit tests
+│   │
+│   ├── diagrams/              # Processor architecture diagrams
+│   ├── sampleInput/           # Example videos for testing
+│   ├── sampleOutput/          # Example CSV outputs for testing
+│   └── pom.xml                # Maven configuration
+│
+├── server/                    # Node.js Express server
+│   ├── src/
+│   │   ├── server.js          # Express app initialization
+│   │   ├── routes/
+│   │   │   └── routes.js      # API endpoint definitions
+│   │   ├── controllers/
+│   │   │   └── controller.js  # Request handlers, processor spawning
+│   │   ├── repos/
+│   │   │   └── repos.js       # SQLite job repository
+│   │   ├── db/
+│   │   │   └── connect.js     # Sequelize connection setup
+│   │   ├── models/
+│   │   │   └── models.js      # Job table schema
+│   │   └── tests/             # Mocha/Chai server tests
+│   │
+│   ├── diagrams/              # Server architecture diagrams
+│   └── package.json           # Node dependencies
+│
+├── .gitignore                 # Git ignore rules
+├── .dockerignore              # Docker ignore rules
+├── Dockerfile                 # Multi-stage build
+└── README.md
+```
+
 ---
 
 ## Development
+
+### Running Tests
+
+**Processor (Java):**
+
+```
+cd processor
+mvn test
+```
+
+**Server (Node):**
+
+```
+cd server
+npm test
+```
