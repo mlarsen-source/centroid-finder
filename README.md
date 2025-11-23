@@ -29,7 +29,7 @@ A video analysis tool for tracking salamander movement in research videos. The s
 - Processes MP4 videos frame-by-frame using a Java backend.
 - Converts frames into pixel arrays and performs Euclidean color-distance calculations.
 - Binarizes frames based on user-selected color and threshold values.
-- Identifies connected pixel groups using a DFS search algorithm.
+- Identifies connected pixel groups using a BFS search algorithm.
 
 **Centroid Detection**
 
@@ -84,6 +84,71 @@ A video analysis tool for tracking salamander movement in research videos. The s
 ---
 
 ## Architecture
+
+```
+    Frontend Application (separate)
+      ↓ (HTTP API calls)
+    Express Server (port 3000)
+    ├── Job Management Logic
+    ├── Job Storage (SQLite)
+    ├── Thumbnail Generation (FFmpeg)
+    └── Spawns Java Processor
+      ↓ (detached child process)
+    Java Video Processor
+    ├── Frame Extraction (JCodec)
+    ├── Color Distance Calculation
+    ├── Image Binarization
+    ├── Pixel Group Detection (BFS)
+    └── Centroid Calculation
+      ↓ (writes CSV)
+    Results Directory
+```
+
+**Processing Flow**
+
+1. **Client Request**
+
+   - Sends `POST /process/:fileName` with:
+     - `targetColor` (hex, e.g., FFA200)
+     - `threshold` (non-negative integer)
+
+2. **Server Job Creation**
+
+   - Generates a UUID-based job ID.
+   - Inserts a job record into SQLite with status "processing"
+   - Spawns the Java processor as a detached child process.
+   - Returns the job ID for client-side status polling.
+
+3. **Java Video Processing**
+
+   - Extracts frame count and duration using JCodec; computes FPS.
+   - Converts each frame to a `BufferedImage`.
+   - Computes Euclidean RGB distance for each pixel.
+   - Converts `BufferedImage` into a binary array.
+   - Uses BFS algorithm to detect connected groups.
+   - Sorts groups by size; selects the largest.
+   - Computes centroid (x, y) of the largest group.
+   - Generates timestamp (frameNumber / fps).
+
+4. **CSV Output**
+
+   - Writes results to `/results/:fileName.csv`.
+
+5. **Job Completion**
+
+   - Updates SQLite job status to "done" or "error".
+
+6. **Client Retrieval**
+   - Polls `/process/:jobId/status` until completed.
+   - Downloads CSV from `/api/csv/:fileName`.
+
+**Technology Stack**
+
+- **Backend**: Node.js, Express, Sequelize, SQLite
+- **Processor**: Java 24, Maven, JCodec
+- **Media Tools**: FFmpeg
+- **Testing**: JUnit, Mocha, Chai, Sinon, Esmock
+- **Containerization**: Docker multi-stage build (Maven -> Node -> Eclipse-Temurin JRE)
 
 ---
 
