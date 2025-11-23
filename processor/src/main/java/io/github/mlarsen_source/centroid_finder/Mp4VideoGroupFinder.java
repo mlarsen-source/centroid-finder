@@ -20,7 +20,7 @@ public class Mp4VideoGroupFinder implements VideoGroupFinder {
   /** Provides access to video frames and timing information. */
   private final VideoProcessor processor;
 
-  /** Finds connected white pixel groups in a binary image using DFS traversal. */
+  /** Finds connected white pixel groups in a binary image using BFS traversal. */
   private final ImageGroupFinder groupFinder;
 
   /**
@@ -28,7 +28,7 @@ public class Mp4VideoGroupFinder implements VideoGroupFinder {
    *
    * @param processor the VideoProcessor responsible for frame extraction
    * @param binarizer the DistanceImageBinarizer used to convert frames to binary images
-   * @param groupFinder the DfsBinaryGroupFinder used to identify connected pixel groups
+   * @param groupFinder the BfsBinaryGroupFinder used to identify connected pixel groups
    */
   public Mp4VideoGroupFinder(VideoProcessor processor, ImageGroupFinder groupFinder) {
     this.processor = processor;

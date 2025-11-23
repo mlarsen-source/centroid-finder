@@ -27,7 +27,7 @@ public class VideoProcessingAppRunner {
 
         ColorDistanceFinder distanceFinder = new EuclideanColorDistance();
         ImageBinarizer binarizer = new DistanceImageBinarizer(distanceFinder, targetColor, threshold);
-        ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new DfsBinaryGroupFinder());
+        ImageGroupFinder groupFinder = new BinarizingImageGroupFinder(binarizer, new BfsBinaryGroupFinder());
 
         VideoProcessor videoProcessor = new Mp4VideoProcessor(new File(videoPath));
         VideoGroupFinder videoGroupFinder = new Mp4VideoGroupFinder(videoProcessor, groupFinder);

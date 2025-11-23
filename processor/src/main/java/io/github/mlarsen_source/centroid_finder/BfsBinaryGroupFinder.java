@@ -1,40 +1,26 @@
 package io.github.mlarsen_source.centroid_finder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-
-public class DfsBinaryGroupFinder implements BinaryGroupFinder {
-   /**
-    * Finds connected pixel groups of 1s in an integer array representing a binary image.
-    * 
-    * The input is a non-empty rectangular 2D array containing only 1s and 0s.
-    * If the array or any of its subarrays are null, a NullPointerException
-    * is thrown. If the array is otherwise invalid, an IllegalArgumentException
-    * is thrown.
-    *
-    * Pixels are considered connected vertically and horizontally, NOT diagonally.
-    * The top-left cell of the array (row:0, column:0) is considered to be coordinate
-    * (x:0, y:0). Y increases downward and X increases to the right. For example,
-    * (row:4, column:7) corresponds to (x:7, y:4).
-    *
-    * The method returns a list of sorted groups. The group's size is the number 
-    * of pixels in the group. The centroid of the group
-    * is computed as the average of each of the pixel locations across each dimension.
-    * For example, the x coordinate of the centroid is the sum of all the x
-    * coordinates of the pixels in the group divided by the number of pixels in that group.
-    * Similarly, the y coordinate of the centroid is the sum of all the y
-    * coordinates of the pixels in the group divided by the number of pixels in that group.
-    * The division should be done as INTEGER DIVISION.
-    *
-    * The groups are sorted in DESCENDING order according to Group's compareTo method.
-    * 
-    * @param image a rectangular 2D array containing only 1s and 0s
-    * @return the found groups of connected pixels in descending order
-    */
+/**
+ * Implementation of BinaryGroupFinder that uses Breadth-First Search (BFS)
+ * to identify connected groups in a binary 2D array.
+ */
+public class BfsBinaryGroupFinder implements BinaryGroupFinder {
+    /**
+     * Finds connected groups of 1's in a binary 2D array using BFS.
+     * Pixels are connected horizontally or vertically (4-connectivity).
+     * Coordinate system: top-left is (0,0), x increases right, y increases down.
+     * Centroid calculated using integer division of summed coordinates.
+     * 
+     * @param image rectangular 2D array containing only 1s and 0s
+     * @return groups of connected pixels in descending order by Group's compareTo
+     * @throws NullPointerException if image or any subarray is null
+     * @throws IllegalArgumentException if array is empty or contains values other than 0 or 1
+     */
     @Override
     public List<Group> findConnectedGroups(int[][] image) {
         if(image == null) throw new NullPointerException("array cannot be null");
@@ -64,6 +50,20 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
         return groups;
     }
 
+    /**
+     * Performs a breadth-first search starting from the given position to find
+     * all connected pixels with value 1.
+     * 
+     * This method uses BFS to traverse the image and identify all pixels that
+     * are horizontally or vertically connected to the starting position.
+     * Visited pixels are marked in the visited array to avoid reprocessing.
+     * 
+     * @param row the starting row position
+     * @param col the starting column position
+     * @param image the binary 2D array to search
+     * @param visited boolean array tracking which pixels have been visited
+     * @param pixels output list that will contain all connected pixel coordinates as [row, col] pairs
+     */
     public static void findConnectedGroups(int row, int col, int[][] image, boolean[][] visited, List<int[]> pixels) {
         if (visited[row][col]) return;
 
@@ -88,6 +88,21 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
         }
     }
 
+    /**
+     * Finds all valid neighboring pixels that are horizontally or vertically adjacent
+     * to the given position.
+     * 
+     * A neighbor is considered valid if it:
+     * - Is within the bounds of the image array
+     * - Has a value of 1 in the image
+     * - Has not yet been visited
+     * 
+     * @param row the current row position
+     * @param col the current column position
+     * @param image the binary 2D array
+     * @param visited boolean array tracking which pixels have been visited
+     * @return list of valid neighbor coordinates as [row, col] pairs
+     */
     public static List<int[]> validNeighbors(int row, int col, int[][] image, boolean[][] visited) {
         int[][] moves = {
             {-1, 0}, 
@@ -113,6 +128,16 @@ public class DfsBinaryGroupFinder implements BinaryGroupFinder {
         return neighbors;
     }
     
+    /**
+     * Creates a Group object from a list of pixel coordinates.
+     * 
+     * The group's size is the number of pixels. The centroid is calculated
+     * by averaging all pixel coordinates using integer division.
+     * Note: Row coordinates map to y values, and column coordinates map to x values.
+     * 
+     * @param pixels list of pixel coordinates as [row, col] pairs
+     * @return a Group object with the calculated size and centroid
+     */
     public static Group createGroup(List<int[]> pixels) {
         int size = pixels.size();
         int rowSum = 0;
