@@ -1,16 +1,19 @@
 package io.github.mlarsen_source.centroid_finder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 
-public class DfsBinaryGroupFinderTest {
+public class BfsBinaryGroupFinderTest {
 
   @Test
   void testFindConnectedGroupsThrowsExceptionWhenImageIsNull() {
-    BinaryGroupFinder finder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder finder = new BfsBinaryGroupFinder();
     assertThrows(NullPointerException.class, () -> {
       finder.findConnectedGroups(null);
     });
@@ -18,7 +21,7 @@ public class DfsBinaryGroupFinderTest {
 
   @Test
   void testFindConnectedGroupsThrowsExceptionWhenImageIsEmpty() {
-    BinaryGroupFinder finder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder finder = new BfsBinaryGroupFinder();
     int[][] empty = new int[0][0];
     assertThrows(IllegalArgumentException.class, () -> {
       finder.findConnectedGroups(empty);
@@ -27,7 +30,7 @@ public class DfsBinaryGroupFinderTest {
 
   @Test
   void testFindConnectedGroupsThrowsExceptionWhenSubarrayIsNull() {
-    BinaryGroupFinder finder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder finder = new BfsBinaryGroupFinder();
     int[][] invalid = {
       {1, 0, 1},
         null
@@ -47,7 +50,7 @@ public class DfsBinaryGroupFinderTest {
       {0, 0, 0, 0, 0}
     };
 
-    BinaryGroupFinder testFinder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder testFinder = new BfsBinaryGroupFinder();
     List<Group> testGroups = testFinder.findConnectedGroups(testImg);
     assertEquals(0, testGroups.size());
   }
@@ -62,7 +65,7 @@ public class DfsBinaryGroupFinderTest {
       {0, 0, 0, 0, 1}
     };
 
-    BinaryGroupFinder testFinder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder testFinder = new BfsBinaryGroupFinder();
     List<Group> testGroups = testFinder.findConnectedGroups(testImg);
     assertEquals(1, testGroups.size());
   }
@@ -77,7 +80,7 @@ public class DfsBinaryGroupFinderTest {
       {0, 1, 1, 1, 1}
     };
 
-    BinaryGroupFinder testFinder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder testFinder = new BfsBinaryGroupFinder();
     List<Group> testGroups = testFinder.findConnectedGroups(testImg);
     assertEquals(2, testGroups.size());
   }
@@ -92,7 +95,7 @@ public class DfsBinaryGroupFinderTest {
       {1, 0, 1, 0, 0},
     };
 
-    BinaryGroupFinder testFinder = new DfsBinaryGroupFinder();
+    BinaryGroupFinder testFinder = new BfsBinaryGroupFinder();
     List<Group> testGroups = testFinder.findConnectedGroups(testImg);
     assertEquals(10, testGroups.size());
   }
@@ -102,7 +105,7 @@ public class DfsBinaryGroupFinderTest {
     List<int[]> pixels = new ArrayList<>();
     pixels.add(new int[]{0, 0});
 
-    Group g = DfsBinaryGroupFinder.createGroup(pixels);
+    Group g = BfsBinaryGroupFinder.createGroup(pixels);
 
     assertEquals(1, g.size());
     assertEquals(0, g.centroid().x());
@@ -117,7 +120,7 @@ public class DfsBinaryGroupFinderTest {
     pixels.add(new int[]{1, 0});
     pixels.add(new int[]{1, 1});
 
-    Group g = DfsBinaryGroupFinder.createGroup(pixels);
+    Group g = BfsBinaryGroupFinder.createGroup(pixels);
 
     assertEquals(4, g.size());
     assertEquals(0, g.centroid().x());
@@ -131,7 +134,7 @@ public class DfsBinaryGroupFinderTest {
     pixels.add(new int[]{0, 1});
     pixels.add(new int[]{0, 2});
 
-    Group g = DfsBinaryGroupFinder.createGroup(pixels);
+    Group g = BfsBinaryGroupFinder.createGroup(pixels);
 
     assertEquals(3, g.size());
     assertEquals(1, g.centroid().x());
@@ -146,7 +149,7 @@ public class DfsBinaryGroupFinderTest {
     pixels.add(new int[]{2, 0});
     pixels.add(new int[]{3, 0});
 
-    Group g = DfsBinaryGroupFinder.createGroup(pixels);
+    Group g = BfsBinaryGroupFinder.createGroup(pixels);
 
     assertEquals(4, g.size());
     assertEquals(0, g.centroid().x());

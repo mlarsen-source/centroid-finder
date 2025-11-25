@@ -88,7 +88,6 @@ public class CsvWriterTest {
 
         // List that throws RuntimeException when accessed
         List<TimedCoordinate> badList = new AbstractList<>() {
-            boolean first = true;
             @Override
             public TimedCoordinate get(int index) {
                 throw new RuntimeException("boom");

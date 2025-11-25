@@ -4,7 +4,7 @@
 
   - https://github.com/mlarsen-source/centroid-finder/pull/1
 
-- add documentation for server
+- Add documentation for server
 
   - https://github.com/mlarsen-source/centroid-finder/pull/4
 
@@ -12,7 +12,13 @@
 
   - https://github.com/mlarsen-source/centroid-finder/pull/6
 
-- Update README.md file -https://github.com/mlarsen-source/centroid-finder/pull/7
+- Update README.md file
+
+  - https://github.com/mlarsen-source/centroid-finder/pull/7
+
+- Revise class names to better describe function / behavior
+
+  - https://github.com/mlarsen-source/centroid-finder/pull/8
 
 ## Improving Error Handling
 
