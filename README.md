@@ -1,93 +1,457 @@
-# centroid-finder
+# Centroid Finder
 
-## *DO THIS FIRST* Wave 0: AI Rules 
-AI is *NOT ALLOWED* for generating implementations of the classes.
-AI is allowed for helping you make test cases.
+A video analysis tool for tracking salamander movement in research videos. The system processes MP4 videos to detect and track colored markers, generating CSV data with timestamped centroid coordinates for behavioral analysis.
 
-Don't have it just create the tests mindlessly for you though! Make sure you're actively involved in making the tests.
+**Components:**
 
-DO NOT MIX HUMAN AND AI COMMITS.
-EVERY COMMIT THAT USES AI MUST START WITH THE COMMIT MESSAGE "AI Used" AND IT MUST ONLY CREATE/ALTER TEST FILES
+- **Processor** — Java/Maven library for video analysis and centroid detection
+- **Server** — Node.js/Express API for job management, thumbnail generation, and result access
 
-For this wave, please have each partner make a commit below with their username acknowledging that they understand the rules, according to the following format:
+---
 
-"I, mlarsen-source, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used'"
+## Table of Contents
 
-I, dangrabo, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used
+- [Features](#features)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Development](#development)
 
-"I, YOUR_GITHUB_USERNAME, understand that AI is ONLY to be used for tests, and that every commit that I use AI for must start with 'AI Used'"
+---
 
-## Wave 1: Understand
-Read through ImageSummaryApp in detail with your partner. Understand what each part does. This will involve looking through and reading ALL of the other classes records and interfaces. This will take a long time, but it is worth it! Do not skimp on this part, you will regret it! Also look at the sampleInput and sampleOutput folders to understand what comes in and what goes out.
+## Features
 
-As you read through the files, take notes in notes.md to help you and your partner understand. Make frequent commits to your notes.
+**Video Processing**
 
-## Wave 2: Implement DfsBinaryGroupFinder
-This class takes in a binary image array and finds the connected groups. It will look very similar in many ways to the explorer problem you did for DFS! You'll need to understand the Group record to do this well.
+- Processes MP4 videos frame-by-frame using a Java backend.
+- Converts frames into pixel arrays and performs Euclidean color-distance calculations.
+- Binarizes frames based on user-selected color and threshold values.
+- Identifies connected pixel groups using a BFS search algorithm.
 
-Consider STARTING with the unit tests. Remember, you can use AI to help with the unit tests but NOT the implementation. Any AI commit must start with the message "AI Used"
+**Centroid Detection**
 
-MAKE SURE YOU MAKE THOROUGH UNIT TESTS.
+- Computes the centroid (X, Y) of the largest detected pixel group within a frame.
+- Records the timestamp of the frame associated with each centroid.
 
-## Wave 3: Implement EuclideanColorDistance
-Implement EuclideanColorDistance. You may consider adding a helper method for converting a hex int into R, G, and B components.
+**CSV Output Generation**
 
-Again, consider starting with unit tests. You may consider using WolframAlpha to help you get correct expected values.
+- Produces a consolidated CSV file containing the per-frame centroid location and timestamp data.
 
-MAKE SURE YOU MAKE THOROUGH UNIT TESTS.
+**Executable Java Component**
 
-## Wave 4: Implement DistanceImageBinarizer
-To do this you will need to research `java.awt.image.BufferedImage`. In particular, make sure to understand `getRGB` and `setRGB`. When creating a new image, you can use the below to start the instance:
+- Packaged as a standalone executable JAR using Maven Assembly.
+- Validates command-line arguments including video path, output path, hex color, and threshold.
+- Provides clear error messages for invalid inputs and file issues.
+
+**Express Server Integration**
+
+- Node/Express server triggers the Java processor and manages job execution.
+- Generates video thumbnails using ffmpeg for front-end previews.
+- Provides endpoints to:
+  - Create new processing jobs.
+  - Retrieve job status.
+  - Fetch generated video thumbnails.
+  - List all available videos ready for processing.
+  - List all generated CSV results.
+  - Download a selected CSV result file.
+
+**SQLite Data Management**
+
+- Uses SQLite database to store job metadata.
+- Tracks each job using:
+  - `jobId` — unique identifier passed to clients.
+  - `status` — "processing", "done", or "error".
+  - `outputPath` — path to the generated CSV file.
+- Schema is automatically synchronized at server startup using Sequelize.
+
+**Containerized Deployment**
+
+- Dockerized ecosystem including the Java processor, Express server, and SQLite storage.
+- SQLite database file stored on a persistent volume.
+- Shared volumes provide access to:
+  - `/videos` — directory for available input videos.
+  - `/results` — directory storing all generated CSV files.
+
+**Comprehensive Testing**
+
+- Thorough JUnit tests cover all Java classes and behaviors.
+- Mocha/Chai tests validate all Express server logic and API endpoints.
+- Esmock and Sinon provide mocking and stubbing for isolated server-side testing.
+
+---
+
+## Architecture
 
 ```
-new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    Frontend Application (separate)
+      ↓ (HTTP API calls)
+    Express Server (port 3000)
+    ├── Job Management Logic
+    ├── Job Storage (SQLite)
+    ├── Thumbnail Generation (FFmpeg)
+    └── Spawns Java Processor
+      ↓ (detached child process)
+    Java Video Processor
+    ├── Frame Extraction (JCodec)
+    ├── Color Distance Calculation
+    ├── Image Binarization
+    ├── Pixel Group Detection (BFS)
+    └── Centroid Calculation
+      ↓ (writes CSV)
+    Results Directory
 ```
 
-Note that a lot of this class will be calling methods in BinaryGroupFinder and ColorDistanceFinder!
+**Processing Flow**
 
-MAKE SURE YOU MAKE THOROUGH UNIT TESTS. Consider asking the AI to teach you about mocks and fakes in unit testing and how they may be helpful here.
+1. **Client Request**
 
-HINT: `getRGB` returns a 32-bit AARRGGBB color (includes alpha channel). However, ColorDistanceFinder expects the colors to come in RRGGBB format (no alpha channel (most significant 8 bits set to 0)). What can you do to make this conversion happen?
+   - Sends `POST /process/:fileName` with:
+     - `targetColor` (hex, e.g., FFA200)
+     - `threshold` (non-negative integer)
 
-## Wave 5: Implement BinarizingImageGroupFinder
-This implementation will be relatively short! It will mostly be calling methods in ImageBinarizer and BinaryGroupFinder.
+2. **Server Job Creation**
 
-MAKE SURE YOU MAKE THOROUGH UNIT TESTS. Consider asking the AI to teach you about mocks and fakes in unit testing and how they may be helpful here. I recommend NOT using any external library other than JUnit. If the AI wants to use another external library, consider asking it not to and to make stubs instead.
+   - Generates a UUID-based job ID.
+   - Inserts a job record into SQLite with status "processing"
+   - Spawns the Java processor as a detached child process.
+   - Returns the job ID for client-side status polling.
 
-## Wave 6: Validation
-To validate your code is working, make sure you're in the centroid-finder directory and run the below command:
+3. **Java Video Processing**
+
+   - Extracts frame count and duration using JCodec; computes FPS.
+   - Converts each frame to a `BufferedImage`.
+   - Computes Euclidean RGB distance for each pixel.
+   - Converts `BufferedImage` into a binary array.
+   - Uses BFS algorithm to detect connected groups.
+   - Sorts groups by size; selects the largest.
+   - Computes centroid (x, y) of the largest group.
+   - Generates timestamp (frameNumber / fps).
+
+4. **CSV Output**
+
+   - Writes results to `/results/:fileName.csv`.
+
+5. **Job Completion**
+
+   - Updates SQLite job status to "done" or "error".
+
+6. **Client Retrieval**
+   - Polls `/process/:jobId/status` until completed.
+   - Downloads CSV from `/api/csv/:fileName`.
+
+**Technology Stack**
+
+- **Backend**: Node.js, Express, Sequelize, SQLite
+- **Processor**: Java 24, Maven, JCodec
+- **Media Tools**: FFmpeg
+- **Testing**: JUnit, Mocha, Chai, Sinon, Esmock
+- **Containerization**: Docker multi-stage build (Maven -> Node -> Eclipse-Temurin JRE)
+
+---
+
+## Prerequisites
+
+### Docker Deployment
+
+- **Docker Engine installed**
+
+### Local Development Environment
+
+- **Java**: JDK 24+
+- **Maven**: 4.0.0+
+- **Node.js**: 24.11.1+
+- **NPM**:11.6.2+
+
+---
+
+## Quick Start
+
+### Docker
+
+1.  **Build the image**
+
+    ```
+    docker build . -t centroid-finder
+    ```
+
+2.  **Run the container**
+
+    ```
+    docker run -p 3000:3000 -v "/path/to/local/videos:/videos" -v "/path/to/local/results:/results"
+    centroid-finder
+    ```
+
+### Local Development
+
+**Processor (Java)**
+
+1.  **Enter the processor directory**
+
+    ```
+    cd processor
+    ```
+
+2.  **Build the JAR**
+
+    ```
+    mvn clean package
+    ```
+
+3.  **Run the processor manually**
+
+    ```
+    java -jar target/centroid-finder-1.0.0-jar-with-dependencies.jar  sampleInput/salamander_video.mp4  processor/results/output.csv  FFA200  164
+    ```
+
+    **Processor Arguments**
+
+    1. Input video path
+    2. Output CSV path
+    3. Target color
+    4. Threshold
+
+**Server (Node.js)**
+
+1.  **Enter the server directory**
+
+    ```
+    cd server
+    ```
+
+2.  **Install dependencies**
+
+    ```
+    npm install
+    ```
+
+3.  **Start the server**
+
+    ```
+    npm start
+    ```
+
+Server will be available at: **http://localhost:3000**
+
+---
+
+## API Documentation
+
+### Endpoints
+
+#### `GET /api/videos`
+
+List all video files available for processing.
+
+**Response:**
+
+```json
+["salamander_video1.mp4", "salamander_video2.mp4", "salamander_video3.mp4"]
+```
+
+---
+
+#### `GET /api/results`
+
+List all processed CSV result files.
+
+**Response:**
+
+```json
+["salamander_video1.csv", "salamander_video2.csv", "salamander_video3.csv"]
+```
+
+---
+
+#### `GET /api/csv/:fileName`
+
+Download a specific CSV result file.
+
+**Parameters:**
+
+- `fileName` (path): Name of the CSV file
+
+**Response:**
+
+- Content-Type: `text/csv`
+- Content-Disposition: `attachment`
+
+**Example:**
 
 ```
-javac -cp lib/junit-platform-console-standalone-1.12.0.jar src/*.java && java -cp src ImageSummaryApp sampleInput/squares.jpg FFA200 164
+http://localhost:3000/api/csv/salamander_video.mp4.csv
 ```
 
-This will compile your files and run the main method in ImageSummaryApp against the sample image with a target color of orange and a threshold of 164. It should binarized.png and groups.csv which should match the corresponding files in the sampleOutput directory.
+---
 
-Once you have confirmed it is working, clean up your code, make sure it's committed and pushed, and make a PR to submit. Great job!
+#### `GET /thumbnail/:fileName`
 
-## Optional Wave 7: Enhancements?
-If you want to, you can make a new branch to start experimenting. See if you can come up with a better color distance method (hint: look up perceptual color spaces). See if you can make your code more efficient or mor suited to spotting salamanders! Experiment with other test files. PLEASE MAKE SURE THIS IS IN A SEPARATE BRANCH FROM YOUR SUBMISSION.
+Generate and retrieve a thumbnail image (first frame) from a video.
 
+**Parameters:**
 
+- `fileName` (path): Name of the video file
 
-## Centroid Finder Video Part I 
-Due Friday by 11:59pm Points 40 Submitting a website url
-You are allowed to use AI for this assignment
-However, you must be prepared to explain any part of your code and package. Do not just copy things without understanding them! Use the AI to help you understand.
+**Response:**
 
-## Overall Goal:
-The overall goal of this project will be to make your centroid finder project be able to process mp4 videos. When working properly, it will generate a CSV that tracks the largest centroid over time. The first column will be the number of seconds since the beginning of the video, and the second and third columns will be the x and y coordinates of the largest found centroid at that time. If no centroid is found at that timestamp, coordinates of (-1, -1) should be used. In this first part, we will be restructuring your centroid finder to work with Maven and choose a video processing library. We will handle the actual video processing in a later assignment.
+- Content-Type: `image/jpeg`
 
-## Restructuring
-Have one partner make a branch of your centroid-finder project called "video". Then, switch to that branch. Make any small commit changing the README and then push it up. Have all the other partners pull it down and switch to that branch.
-Reorganize your code so that it takes the structure of a Maven project. There's a lot you'll need to move around, and new files you'll need to create. Use the mavenValidate repo as an example. Make sure to properly separate your tests, and make sure that ImageSummaryApp is set as the main class in the pom.
-If everything is working properly, you should be able to run mvn exec:java -Dexec.args="sampleInput/squares.jpg FFA200 164" and have the proper files generated. You should also be able to run mvn test to run the tests from the command line.
+**Example:**
 
-## Experimenting
-Research what video libraries exist in Java. Do your best to understand the pros and cons of them. Search online, talk with your partner, and get input from the AI. Make a new file "options.md" and in it write list of at least three options. IN YOUR OWN WORDS write a few pros and cons for each.
-Select one to experiment with. Add it as a dependency in your POM, and make a new class to play around with it. See what it's like to get metadata, and how you extract frame data out of it. Using a small sample video, experiment! Consider switching the main class in your POM to this new experimenting class.
-If you are satisfied with this library, you can use it for your project. If it feels difficult to work with or unsuited to this application, choose another one off your list and experiment with it. Keep going until you find a library you like.
-Begin thinking about how you can integrate this library with your existing code. In future parts to this project, you will perform that integration.
+```
+http://localhost:3000/thumbnail/salamander_video.mp4
+```
 
-## Submission
-Make sure all your changes (including your experiments with the new video library) are pushed to your video branch. Make a NEW PR from the video branch. Copy the URL of the PR here to submit.
+---
+
+#### `POST /process/:fileName`
+
+Start a video processing job.
+
+**Parameters:**
+
+- `fileName` (path): Name of the video file in `/videos` directory
+
+**Query Parameters:**
+
+- `targetColor` (required): 6-character hex color code (e.g., `FFA200`)
+- `threshold` (required): Integer threshold for color matching (e.g., `164`)
+
+**Response:**
+
+```json
+{
+  "jobId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+**Example:**
+
+```bash
+POST http://localhost:3000/process/salamander_video.mp4?targetColor=FFA200&threshold=164
+```
+
+---
+
+#### `GET /process/:jobId/status`
+
+Check the status of a processing job.
+
+**Parameters:**
+
+- `jobId` (path): UUID returned from the POST /process endpoint
+
+**Response:**
+
+**Processing:**
+
+```json
+{
+  "status": "processing"
+}
+```
+
+**Completed:**
+
+```json
+{
+  "status": "done",
+  "outputPath": "/results/salamander_video.mp4.csv"
+}
+```
+
+**Error:**
+
+```json
+{
+  "status": "error",
+  "error": "Error processing video: Unexpected ffmpeg error"
+}
+```
+
+---
+
+## Project Structure
+
+```
+centroid-finder/
+|
+├── plans/                     # Documentation and development notes
+|
+├── processor/                 # Java Maven processor
+│   ├── src/
+│   │   ├── main/java/io/github/mlarsen_source/centroid_finder/
+│   │   │   ├── VideoProcessingApp.java              # Main entry point
+│   │   │   ├── VideoProcessingAppRunner.java        # Processing coordinator
+│   │   │   ├── ArgumentParser.java                  # Interface for argument parsing
+│   │   │   ├── CommandLineParser.java               # CLI argument parser/validator
+│   │   │   ├── VideoProcessor.java                  # Interface for video operations
+│   │   │   ├── Mp4VideoProcessor.java               # MP4 frame extraction & FPS calculation
+│   │   │   ├── VideoGroupFinder.java                # Interface for video analysis
+│   │   │   ├── Mp4VideoGroupFinder.java             # Frame-by-frame centroid extraction
+|   |   |   ├── ColorDistanceFinder.java             # Interface for color distance
+│   │   │   ├── EuclideanColorDistance.java          # RGB Euclidean distance calculator
+│   │   │   ├── ImageBinarizer.java                  # Interface for image binarization
+│   │   │   ├── DistanceImageBinarizer.java          # Color distance-based binarization
+│   │   │   ├── ImageGroupFinder.java                # Interface for connected components
+│   │   │   ├── BinarizingImageGroupFinder.java      # Binarize + find groups pipeline
+│   │   │   ├── BinaryGroupFinder.java               # Interface for binary image groups
+│   │   │   ├── BfsBinaryGroupFinder.java            # BFS connected group detection
+│   │   │   ├── DataWriter.java                      # Interface for output writing
+│   │   │   ├── CsvWriter.java                       # CSV file writer
+│   │   │   ├── Coordinate.java                      # Record: (x, y) position
+│   │   │   ├── Group.java                           # Record: pixel group with centroid
+│   │   │   ├── TimedCoordinate.java                 # Record: centroid + timestamp
+│   │   │   └── FrameData.java                       # Record: video metadata
+|   |   |
+│   │   └── test/java/         # JUnit tests
+│   │
+│   ├── diagrams/              # Processor architecture diagrams
+│   ├── sampleInput/           # Example videos for testing
+│   ├── sampleOutput/          # Example CSV outputs for testing
+│   └── pom.xml                # Maven configuration
+│
+├── server/                    # Node.js Express server
+│   ├── src/
+│   │   ├── server.js          # Express app initialization
+│   │   ├── routes/
+│   │   │   └── routes.js      # API endpoint definitions
+│   │   ├── controllers/
+│   │   │   └── controller.js  # Request handlers, processor spawning
+│   │   ├── repos/
+│   │   │   └── repos.js       # SQLite job repository
+│   │   ├── db/
+│   │   │   └── connect.js     # Sequelize connection setup
+│   │   ├── models/
+│   │   │   └── models.js      # Job table schema
+│   │   └── tests/             # Mocha/Chai server tests
+│   │
+│   ├── diagrams/              # Server architecture diagrams
+│   └── package.json           # Node dependencies
+│
+├── .gitignore                 # Git ignore rules
+├── .dockerignore              # Docker ignore rules
+├── Dockerfile                 # Multi-stage build
+└── README.md
+```
+
+---
+
+## Development
+
+### Running Tests
+
+**Processor (Java):**
+
+```
+cd processor
+mvn test
+```
+
+**Server (Node):**
+
+```
+cd server
+npm test
+```
