@@ -1,6 +1,7 @@
 package io.github.mlarsen_source.centroid_finder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -43,10 +44,10 @@ public class BfsBinaryGroupFinder implements BinaryGroupFinder {
                 }
             }
         }
-        Group largest = new Group(0, new Coordinate(0,0));
-        for (Group g : groups) {
-            if (g.compareTo(largest) > 0 ) largest = g;
+        if (!groups.isEmpty()) {
+            groups.sort(Collections.reverseOrder());
         }
+
         return groups;
     }
 
